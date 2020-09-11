@@ -52,7 +52,7 @@ class addProcStep1 extends Component {
     
   
     render(){
-        const {values, handleChange, handleDate, handleTime } = this.props
+        const {handleDate, handleTime } = this.props
         const timeSlotsArray = [{key : "8:00 AM", value : "8:00 AM", text : "8:00 AM"}, 
                                 {key : "8:30 AM", value : "8:30 AM", text :"8:30 AM"},
                                 {key : "9:00 AM", value : "9:00 AM", text : "9:00 AM"},

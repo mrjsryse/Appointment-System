@@ -583,16 +583,7 @@ router.get("/addproc", (req, res) => {
 */
 // ***to be checked***
 router.get("/appointmentlist", (req, res) => {
-    Appointment.find({}, (err, docs) => {
-        if (err) {
-            res.send(err)
-        }
-        else {
-            res.render("admin.hbs", {
-                appointments: docs
-            })
-        }
-    })
+    Appointment.find().then(appointment => res.json(appointment)).catch(err => res.status(400).json('Error'+err))
 })
 //Get available doctors by getting the appointment dates and if 
 //wala siyang appointment on the time slot, it will mean available

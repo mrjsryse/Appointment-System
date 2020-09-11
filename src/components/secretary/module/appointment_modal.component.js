@@ -8,7 +8,7 @@ import axios from 'axios'
 
 
 
-import AddProcMainForm from "../AddApp/addProcMainForm.component"
+import AddProcMainForm from "./addProcMainForm.component"
 
 
 
@@ -126,7 +126,7 @@ class AddModal extends Component {
       const values = {firstname, lastname, patientcontact, process, notes, date, time, doctors}
       let button;
       let button2;
-      if(this.state.step == 1){
+      if(this.state.step === 1){
         button = <Button onClick={this.nextStep} type='button'>Next</Button>
       } else{
         button = <Button type="button" color="green" onClick={this.handleSubmit}>Submit</Button>
