@@ -9,46 +9,34 @@ export default class SecretaryHeader extends Component{
 
         this.state={
             today:this.props.date,
-            startOfWeek: moment(this.props.date).startOf('week'),
-            endOfWeek: moment(this.props.date).endOf('week'),
-            days:[],
-            weekUnparsed:[]
+            startOfWeek: this.props.startOfWeek,
+            endOfWeek: this.props.endOfWeek,
+            days:this.props.daysParent,
+            weekUnparsed:this.props.weekUnparsed
 
         }
+        
         
     }
 
     componentDidMount(){
-
-        console.log("HELLO?")
-        let day = this.state.startOfWeek
-        let numdays=[]
-        let unparsed=[]
-        
-        while(day <= this.state.endOfWeek){
-            unparsed.push(day.toDate())
-            let newDate=Date.parse(day)
-            let formatted=moment(newDate).format("MMMM D, YYYY")
-            numdays.push(formatted);
-            day = day.clone().add(1, 'd');
-        }
         let newArray=[]
         let backgroundColor ='red'
         let dated=Date.parse(this.state.today)
         let dateded =moment(dated).format("MMMM D, YYYY")
 
         newArray.push(<Table.Cell><AddAppointment></AddAppointment></Table.Cell>)
-        for(let i =0; i < numdays.length; i++){
-            if(numdays[i] == dateded){
-                newArray.push(<Table.Cell onClick={()=>this.props.onChangeDate(this.state.unparsed[i])} style={{backgroundColor}}>{numdays[i]}</Table.Cell>)
+        for(let i =0; i < this.state.days.length; i++){
+            if(this.state.days[i] == dateded){
+                newArray.push(<Table.Cell onClick={()=>this.props.onChangeDate(this.state.weekUnparsed[i])} style={{backgroundColor}}>{this.state.days[i]}</Table.Cell>)
             }
             else{
-                newArray.push(<Table.Cell onClick={()=>this.props.onChangeDate(this.state.sunparsed[i])} >{numdays[i]}</Table.Cell>)
+                newArray.push(<Table.Cell onClick={()=>this.props.onChangeDate(this.state.weekUnparsed[i])} >{this.state.days[i]}</Table.Cell>)
             }
         }
         this.setState({
-            days:numdays,
-            weekUnparsed:unparsed
+            days:this.state.days,
+            weekUnparsed:this.state.weekUnparsed
             
         })
 
@@ -59,39 +47,27 @@ export default class SecretaryHeader extends Component{
     }
 
     componentDidUpdate(){
-        if(this.props.date !== this.state.today){
-            
-            let day = moment(this.props.date).startOf('week')
-            let numdays=[]
-            let unparsed=[]
-            
-            while(day <= moment(this.props.date).endOf('week')){
-                unparsed.push(day.toDate())
-                let newDate=Date.parse(day)
-                let formatted=moment(newDate).format("MMMM D, YYYY")
-                numdays.push(formatted);
-                day = day.clone().add(1, 'd');
-            }
+        if(this.props.date !== this.state.today){   
             let newArray=[]
             let backgroundColor ='red'
             let dated=Date.parse(this.state.today)
             let dateded =moment(dated).format("MMMM D, YYYY")
 
             newArray.push(<Table.Cell><AddAppointment></AddAppointment></Table.Cell>)
-            for(let i =0; i < numdays.length; i++){
-                if(numdays[i] == dateded){
-                    newArray.push(<Table.Cell onClick={()=>this.props.onChangeDate(this.state.unparsed[i])} style={{backgroundColor}}>{numdays[i]}</Table.Cell>)
+            for(let i =0; i < this.state.days.length; i++){
+                if(this.state.days[i] == dateded){
+                    newArray.push(<Table.Cell onClick={()=>this.props.onChangeDate(this.state.weekUnparsed[i])} style={{backgroundColor}}>{this.state.days[i]}</Table.Cell>)
                 }
                 else{
-                    newArray.push(<Table.Cell onClick={()=>this.props.onChangeDate(this.state.unparsed[i])} >{numdays[i]}</Table.Cell>)
+                    newArray.push(<Table.Cell onClick={()=>this.props.onChangeDate(this.state.weekUnparsed[i])} >{this.state.days[i]}</Table.Cell>)
                 }
             }
             this.setState({
                 today: this.props.date,
-                startOfWeek: moment(this.props.date).startOf('week'),
-                endOfWeek: moment(this.props.date).endOf('week'),
-                days:numdays,
-                weekUnparsed:unparsed,
+                startOfWeek: this.props.startOfWeek,
+                endOfWeek: this.props.endOfWeek,
+                days:this.props.daysParent,
+                weekUnparsed:this.props.weekUnparsed,
                 
                 
             })
@@ -124,11 +100,10 @@ export default class SecretaryHeader extends Component{
 
         return(
             <Table id="SECHEADER" columns='8' celled textAlign='center' style={{height:70+'px'}}>
-                <Table.Row children={newArray}>
-                    {/* {this.state.days.map(day=>
-                    <Table.Cell onChange={()=> this.hello(day)} style={{backgroundColor}}>{day}
-                        </Table.Cell>)} */}
-                </Table.Row>
+                <Table.Body>
+                    <Table.Row children={newArray}/>
+                    
+                </Table.Body>
             </Table>
         )
     }

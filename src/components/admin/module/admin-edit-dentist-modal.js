@@ -1,9 +1,17 @@
 import React from "react";
 import axios from "axios";
-import { Modal, Icon, Popup, Button, Form, Input } from "semantic-ui-react";
+import {
+    Modal,
+    Icon,
+    Popup,
+    Button,
+    Form,
+    Input,
+    Message,
+} from "semantic-ui-react";
 import { toast } from "react-semantic-toasts";
 
-class AdminAddDentistModal extends React.Component {
+class AdminEditDentistModal extends React.Component {
     state = {
         firstname: "",
         lastname: "",
@@ -19,7 +27,7 @@ class AdminAddDentistModal extends React.Component {
         },
     };
 
-    handleOpen = () => this.props.handleModal("admin-add-dentist");
+    handleOpen = () => this.props.handleModal("admin-edit-dentist");
 
     handleClose = () => this.props.handleModal("none");
 
@@ -27,37 +35,26 @@ class AdminAddDentistModal extends React.Component {
 
     handleUpdateTable = () => this.props.handleUpdateTable();
 
-    handleSubmit = (event) => {
+    handleSubmit = (event, { datakey }) => {
         event.preventDefault();
         if (this.handleValidation()) {
             const data = {
+                doctorID: datakey,
                 firstname: this.state.firstname.trim(),
                 lastname: this.state.lastname.trim(),
-                username: this.state.username.trim(),
                 password: this.state.password.trim(),
-                type: "dentist",
-                status: "Active",
             };
-            axios.post("admin/addDentist", data).then((res) => {
-                if (res.data.message === true) {
-                    this.handleClose();
-                    setTimeout(() => {
-                        toast({
-                            type: "success",
-                            title: "Success",
-                            description: <p>New dentist successfully added</p>,
-                            icon: "check",
-                        });
-                    }, 1000);
-                    this.handleUpdateTable();
-                } else {
+            axios.post("admin/editDentist", data).then((res) => {
+                this.handleClose();
+                setTimeout(() => {
                     toast({
-                        type: "error",
-                        title: "Error",
-                        description: <p>Username already exists</p>,
-                        icon: "cancel",
+                        type: "success",
+                        title: "Success",
+                        description: <p>Dentist successfully edited</p>,
+                        icon: "check",
                     });
-                }
+                }, 1000);
+                this.handleUpdateTable();
             });
         }
     };
@@ -65,12 +62,10 @@ class AdminAddDentistModal extends React.Component {
     handleValidation() {
         const checkfirst = /^[a-z A-Z]+$/; //regex for valid firstname
         const checklast = /^[a-z A-Z.\-_]+$/; //regex for valid lastname
-        const checkusername = /^[0-9a-zA-Z]+$/; //regex to check for valid username
         const checkPassword = /^[0-9a-zA-Z]+$/;
 
         let firstname = this.state.firstname.trim();
         let lastname = this.state.lastname.trim();
-        let username = this.state.username.trim();
         let password = this.state.password.trim();
         let confirmPassword = this.state.confirmPassword.trim();
         let error = this.state.error;
@@ -186,125 +181,108 @@ class AdminAddDentistModal extends React.Component {
             formIsValid = false;
         }
 
-        if (username === "") {
-            error["username"] = true;
-            toast({
-                type: "error",
-                title: "Error",
-                description: <p>Please input a valid username</p>,
-                icon: "cancel",
-            });
-            formIsValid = false;
-        } else if (username.length < 6) {
-            error["username"] = true;
-            toast({
-                type: "error",
-                title: "Error",
-                description: <p>Username is too short</p>,
-                icon: "cancel",
-            });
-            formIsValid = false;
-        } else if (username.length > 32) {
-            error["username"] = true;
-            toast({
-                type: "error",
-                title: "Error",
-                description: <p>Username is too long</p>,
-                icon: "cancel",
-            });
-            formIsValid = false;
-        } else if (!username.match(checkusername)) {
-            error["username"] = true;
-            toast({
-                type: "error",
-                title: "Error",
-                description: <p>Incorrect username format</p>,
-                icon: "cancel",
-            });
-            formIsValid = false;
-        }
-
         this.setState({ error: error });
 
         return formIsValid;
     }
 
+    componentDidMount() {
+        if (this.props.data != null) {
+            let datakey = this.props.data.key;
+            axios.post("admin/getUser", { doctorID: datakey }).then((res) => {
+                if (res.data.user != null) {
+                    this.setState({
+                        username: res.data.user.username,
+                    });
+                }
+            });
+        }
+    }
     render() {
         let open;
 
-        if (this.props.activeModal === "admin-add-dentist") {
+        const icon_styling = {
+            marginRight: 13.5 + "px",
+        };
+
+        if (this.props.activeModal === "admin-edit-dentist") {
             open = true;
         } else {
             open = false;
         }
+
+        let firstname;
+        let lastname;
+        let key;
+        if (
+            this.props.data != null &&
+            this.props.data.firstname != null &&
+            this.props.data.lastname != null
+        ) {
+            key = this.props.data.key;
+            firstname = this.props.data.firstname;
+            lastname = this.props.data.lastname;
+        }
+
         return (
             <Modal
                 closeIcon
                 size="mini"
-                id="add-dentist-modal"
+                id="edit-dentist-modal"
                 onClose={() => this.handleClose()}
                 onOpen={() => this.handleOpen()}
                 open={open}
             >
                 <Modal.Header as="h2">
-                    <Icon name="user md"></Icon>
-                    New Dentist
+                    <Icon name="edit"></Icon>
+                    Edit Dentist
                 </Modal.Header>
 
                 <Modal.Content>
                     <Form onSubmit={this.handleSubmit}>
-                        <Form.Field required id="firstname-field-dentist">
+                        <Form.Field required id="edit-firstname-field-dentist">
                             <label>First Name</label>
                             <Popup
                                 trigger={
                                     <Input
                                         error={this.state.error.firstname}
                                         name="firstname"
-                                        id="add-firstname-dentist"
+                                        id="edit-firstname-dentist"
                                         autoComplete="false"
                                         placeholder="First Name"
                                         onChange={this.handleChange}
+                                        value={firstname}
                                     />
                                 }
                                 content="Name should contain at least 2 characters"
                                 position="right center"
                             />
                         </Form.Field>
-                        <Form.Field required id="lastname-field-dentist">
+                        <Form.Field required id="edit-lastname-field-dentist">
                             <label>Last Name</label>
                             <Popup
                                 trigger={
                                     <Input
                                         error={this.state.error.lastname}
                                         name="lastname"
-                                        id="add-lastname-dentist"
+                                        id="edit-lastname-dentist"
                                         autoComplete="false"
                                         placeholder="Last Name"
                                         onChange={this.handleChange}
+                                        value={lastname}
                                     />
                                 }
                                 content="Name should contain at least 2 characters"
                                 position="right center"
                             />
                         </Form.Field>
-                        <Form.Field required id="username-field-dentist">
+                        <Form.Field required id="edit-username-field-dentist">
                             <label>Username</label>
-                            <Popup
-                                trigger={
-                                    <Input
-                                        error={this.state.error.username}
-                                        name="username"
-                                        id="add-username-dentist"
-                                        autoComplete="false"
-                                        placeholder="Username"
-                                        onChange={this.handleChange}
-                                    />
-                                }
-                                content="You will not be able to change your username once created"
-                                position="right center"
-                            />
+                            <Message id="edit-username-dentist">
+                                {this.state.username}
+                            </Message>
                         </Form.Field>
-                        <Form.Field required id="password-field-dentist">
+                        <Form.Field required id="edit-password-field-dentist">
                             <label>Password</label>
                             <Popup
                                 trigger={
@@ -312,7 +290,7 @@ class AdminAddDentistModal extends React.Component {
                                         error={this.state.error.password}
                                         name="password"
                                         type="password"
-                                        id="add-password-dentist"
+                                        id="edit-password-dentist"
                                         autoComplete="false"
                                         placeholder="Password"
                                         onChange={this.handleChange}
@@ -324,7 +302,7 @@ class AdminAddDentistModal extends React.Component {
                         </Form.Field>
                         <Form.Field
                             required
-                            id="confirm-password-field-dentist"
+                            id="edit-confirm-password-field-dentist"
                         >
                             <label>Confirm Password</label>
                             <Popup
@@ -333,7 +311,7 @@ class AdminAddDentistModal extends React.Component {
                                         error={this.state.error.confirmPassword}
                                         name="confirmPassword"
                                         type="password"
-                                        id="confirm-password-dentist"
+                                        id="edit-confirm-password-dentist"
                                         autoComplete="false"
                                         placeholder="Password"
                                         onChange={this.handleChange}
@@ -351,11 +329,11 @@ class AdminAddDentistModal extends React.Component {
                         icon
                         labelPosition="left"
                         color="green"
-                        id="create-dentist-button"
+                        id="edit-dentist-button"
                         onClick={this.handleSubmit}
                     >
                         <Icon name="check" />
-                        CREATE
+                        SAVE CHANGES
                     </Button>
                 </Modal.Actions>
             </Modal>
@@ -363,4 +341,4 @@ class AdminAddDentistModal extends React.Component {
     }
 }
 
-export default AdminAddDentistModal;
+export default AdminEditDentistModal;

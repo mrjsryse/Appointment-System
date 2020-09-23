@@ -22,3 +22,6 @@ body{
   background-color: #e03997 !important;
   color: white !important;
 }
+.ui.sortable.table thead th{
+  border: 0 !important
+}

@@ -6,29 +6,52 @@ import moment from 'moment'
 import axios from 'axios'
 import SecretaryHeader from "../module/secretary_header"
 import SecretaryTable from "../module/secretary_table"
-import Trrial from "../views/day_all.component"
+import Trrial from "../module/day_all.component"
 
 export default class Secretary extends Component{
 
+    
+
     constructor(props){
         super(props);
+        
+            let dayStart = moment(moment().toDate()).startOf('week')
+            let dayEnd = moment(moment().toDate()).endOf('week')
+            let numdays=[]
+            let unparsed=[]
+            
+            while(dayStart <= dayEnd){
+                unparsed.push(dayStart.toDate().toString())
+                let newDate=Date.parse(dayStart)
+                let formatted=moment(newDate).format("MMMM D, YYYY")
+                numdays.push(formatted);
+                dayStart = dayStart.clone().add(1, 'd');
+            }
+
         this.state = {
             doctors:[],
+            appointments:[],
             view:'day',
             filter:'appointments',
             date: moment().toDate(), 
-            startOfWeek: moment(this.props.date).startOf('week'),
-            endOfWeek: moment(this.props.date).endOf('week'),
+            startOfWeek: moment(moment().toDate()).startOf('week'),
+            endOfWeek: moment(moment().toDate()).endOf('week'),
+            days:numdays,
+            weekUnparsed:unparsed
+            
             
         }
 
         this.onChangeDate = this.onChangeDate.bind(this)
     }
 
+
+
     componentDidMount(){
         axios.get('http://localhost:3000/secretary/getDoctors')
             .then(response => {
                 if(response.data.length > 0){
+                    
                     this.setState({   
                         doctors: [
                             ...response.data.map(doctor =>{
@@ -39,8 +62,44 @@ export default class Secretary extends Component{
                                 }
                             })
                         ],
+                        
                     })
                 }
+            })
+        axios.get('http://localhost:3000/secretary/appointmentlist')
+            .then(response=>{
+                this.setState({
+                    appointments: response.data,
+                })
+            })
+            .catch((error)=>{
+                console.log(error)
+        })
+
+           
+    }
+
+    //Updates week
+    onWeek=(date)=>{
+            
+            let dayStart = moment(date).startOf('week')
+            let dayEnd = moment(date).endOf('week')
+            let numdays=[]
+            let unparsed=[]
+            
+            while(dayStart <= dayEnd){
+                unparsed.push(dayStart.toDate())
+                let newDate=Date.parse(dayStart)
+                let formatted=moment(newDate).format("MMMM D, YYYY")
+                numdays.push(formatted);
+                dayStart = dayStart.clone().add(1, 'd');
+            }
+
+            this.setState({
+                startOfWeek: dayStart,
+                endOfWeek: dayEnd,
+                days:numdays,
+                weekUnparsed:unparsed
             })
     }
 
@@ -52,11 +111,14 @@ export default class Secretary extends Component{
                 date: moment().toDate()
             });
         }else{
+            this.onWeek(date)
             this.setState({
-                date:date
+                date:date,
             })
+            
         }
     }
+
     onChangeView=(e, {name, value})=>{
         this.setState({
           [name]:value
@@ -64,41 +126,59 @@ export default class Secretary extends Component{
         console.log(value)
       }
     onToday= () =>{
+        
         console.log('Changing date to today');
         this.setState({
             date: moment().toDate()
         })
+        this.onWeek(moment().toDate())
+        
     }
     onPrev=()=>{
+        
         let prev_date = moment(this.state.date).clone().subtract(1, 'day').toDate()
         console.log('change to: ', prev_date)
         this.setState({
             date: prev_date
         })
+        this.onWeek(prev_date)
+        
     }
 
     onNext=()=>{
+        
         let next_date = moment(this.state.date).clone().add(1, 'day').toDate()
         console.log('change to: ', next_date)
         this.setState({
             date: next_date
         })
+        this.onWeek(next_date)
         
     }
     render(){
+
         const viewer=[
             {text:"DAY", key:"day", value:"day"},
             {text:"WEEK", key:"week", value:"week"}
         ]
         let currView
         if(this.state.view == 'week' ){
-            currView = <SecretaryTable></SecretaryTable>
+            currView = <SecretaryTable 
+                            appointments={this.state.appointments}
+                            week={this.state.weekUnparsed}
+                        >
+                        </SecretaryTable>
         }
         else if(this.state.view == 'day'){
-            currView = <Trrial></Trrial>
+            currView = <Trrial
+                            day={this.state.date}
+                        >
+                            
+                        </Trrial>
         }
         return(
             <>
+            
                 <Header id='secretary_header_container' content={
                     <Navbar id='secretary_navbar'
                         // doctors={doctors}
@@ -109,6 +189,7 @@ export default class Secretary extends Component{
                         onToday={this.onToday}
                         onChangeView={this.onChangeView}
                         date={this.state.date}
+                        
                         viewer={viewer}
                         doctors={this.state.doctors}
                     />
@@ -117,10 +198,17 @@ export default class Secretary extends Component{
                 <SecretaryHeader id='secretary_dateHeader'
                     date={this.state.date}
                     onChangeDate={this.onChangeDate}
+                    startOfWeek={this.state.startOfWeek}
+                    endOfWeek={this.state.endOfWeek}
+                    daysParent={this.state.days}
+                    weekUnparsed={this.state.weekUnparsed}
+                    weekLength={this.state.days.length}
                 >
 
                 </SecretaryHeader>
+                <div style={{height: 840+'px', overflowY:'scroll', overflowX:'scroll'}}>
                 {currView}
+                </div>
                 
                 
             </>

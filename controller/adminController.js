@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
     let admin = await Account.getAccountByUsername("admin");
     if (req.session.username == "admin") {
         res.render("page_templates/admin_view.hbs", {
-            password: admin.password
+            password: admin.password,
         });
     } else {
         res.redirect("/login");
@@ -40,33 +40,41 @@ router.get("/", async (req, res) => {
 //VALIDATION
 router.post("/checkCurrentAdminPassword", async (req, res) => {
     let admin = await Account.getAccountByUsername("admin");
-    var temp = await Account.authenticate(admin.username, req.body.newPassword, admin.salt);
-    if(temp != null) {
+    var temp = await Account.authenticate(
+        admin.username,
+        req.body.newPassword,
+        admin.salt
+    );
+    if (temp != null) {
         res.send(true);
     } else {
         res.send(false);
     }
-})
+});
 
 // CHECKS IF THE CURRENT PASSWORD IS CORRECT
 // TAKEN FROM THE MODEL ACCOUNT
 router.post("/checkCurrentSecretaryPassword", async (req, res) => {
     let user = await Account.getAccountByUsername("secretary");
-    var temp = await Account.authenticate(user.username, req.body.newPassword, user.salt);
-    if(temp != null) {
+    var temp = await Account.authenticate(
+        user.username,
+        req.body.newPassword,
+        user.salt
+    );
+    if (temp != null) {
         res.send(true);
     } else {
         res.send(false);
     }
-})
+});
 
 // CHECKS IF THE USERNAME INPUT IS IN THE DATABASE
 router.post("/validateUsername", async (req, res) => {
     let account = await Account.getAccountByUsername(req.body.username);
     if (account == undefined) {
-        res.send({message: false})
+        res.send({ message: false });
     } else {
-        res.send({message: true})
+        res.send({ message: true });
     }
 });
 
@@ -77,25 +85,22 @@ var check_username = async function (username) {
     } else {
         return true;
     }
-}
+};
 
 // ALL ACCOUNT SETTING
 
 // ALLOWS CHANGING OF THE CURRENTLY LOGGED USER'S PASSWORD
 router.post("/updateAccountPassword", async (req, res) => {
     res.send({
-        message: update_password(
-            req.body.username,
-            req.body.newPassword
-        ),
+        message: update_password(req.body.username, req.body.newPassword),
     });
 });
 
 var update_password = async function (username, newPassword) {
     let account = await Account.getAccountByUsername(username);
-    if(account==undefined){
+    if (account == undefined) {
         return false;
-    } else{
+    } else {
         Account.updateAccount(account.id, newPassword);
         return true;
     }
@@ -274,6 +279,7 @@ router.post("/editDentist", async (req, res) => {
 // ALLOWS UPDATING IF THE DOCTOR IS CURRENTLY AVAILABLE OR NOT
 router.post("/updateDentistStatus", async (req, res) => {
     Doctor.updateDoctorStatus(req.body.doctorID, req.body.status);
+    res.send(true)
 });
 
 // ADD PROCESS; This probably refers to an appointment
@@ -307,7 +313,7 @@ router.post("/editProcess", async (req, res) => {
 });
 //Deletes an existing appointment
 router.post("/deleteProcess", async (req, res) => {
-    let processID = req.body.processID;
+    let processID = req.body.procedureID;
     let apps = await Appointment.getAll();
     for (var i = 0; i < apps.length; i++) {
         let appID = apps[i]._id;
@@ -384,6 +390,13 @@ router.get("/adminDentist", urlencoder, async (req, res) => {
     });
 });
 
+router.get("/getAllDentists", urlencoder, async (req, res) => {
+    let doctors = await Doctor.getAllDoctors();
+    res.send({
+        dentists: doctors,
+    });
+});
+
 // LOAD TABLES FOR ALL PROCEDURES
 router.get("/adminProcedure", urlencoder, async (req, res) => {
     let processes = await Process.getAllProcesses();
@@ -399,6 +412,13 @@ router.get("/adminProcedure", urlencoder, async (req, res) => {
             table,
         },
         data: sendData,
+    });
+});
+
+router.get("/getAllProcedures", urlencoder, async (req, res) => {
+    let processes = await Process.getAllProcesses();
+    res.send({
+        procedures: processes,
     });
 });
 
@@ -783,6 +803,16 @@ router.post("/doctorHasAppointment", urlencoder, async (req, res) => {
     let startformattedDate = moment(startnewDate).format("MMM D YYYY");
     let endnewDate = Date.parse(enddate);
     let endformattedDate = moment(endnewDate).format("MMM D YYYY");
+
+    let today = new Date();
+    let todayFormatted = moment(today).format("MMM D YYYY");
+
+    if (
+        todayFormatted == startformattedDate ||
+        todayFormatted == endformattedDate
+    ) {
+        res.send(true);
+    }
 
     let startappointments = await Appointment.getAppByDoctorandDate(
         doctorID,

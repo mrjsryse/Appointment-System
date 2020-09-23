@@ -1,37 +1,39 @@
 import React, {Component} from 'react';
 import moment from 'moment';
 import {Modal, Form, Button} from 'semantic-ui-react'
+import DatePicker from 'react-datepicker'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faCalendar} from '@fortawesome/free-solid-svg-icons'
+import {faBoxTissue, faCalendar} from '@fortawesome/free-solid-svg-icons'
 import axios from 'axios'
+import SecretaryTable from './secretary_table'
 
 import { SemanticToastContainer, toast } from 'react-semantic-toasts';
 import 'react-semantic-toasts/styles/react-semantic-alert.css';
+import {Card} from 'semantic-ui-react';
 
 
 
-import AddProcMainForm from "./addProcMainForm.component"
+import EditProcMainForm from "./editProcMainForm"
 
 
 
 
 
-class AddModal extends Component {
+class EditModal extends Component {
     constructor(props){
     
       super(props);
       
       this.state ={
-        firstname:'',
-        lastname:'',
-        patientcontact:'',
-        procedures:[],
-        process:'',
-        notes:'',
-        date: moment().toDate(),
-        time: moment().toDate(),
-        doctor:'',
-        doctors:[],
+            // app_id: this.props.appointment._id,
+            firstname: this.props.appointment.firstname,
+            lastname: this.props.appointment.lastname,
+            procedures: this.props.appointment.process,
+            notes: this.props.appointment.notes,
+            date: moment(this.props.appointment.date).toDate(),
+            doctors: this.props.appointment.doctor,
+            patientcontact: this.props.appointment.patientcontact,
+            time: moment(this.props.appointment.time, "h:mm A").toDate(),
         open: false,
         step: 1,
       }
@@ -69,6 +71,7 @@ class AddModal extends Component {
     }, 1000)
     }
     setOpen(){
+      console.log(this.state.time)
       this.setState({
         open: !this.state.open,
         step : 1
@@ -96,7 +99,7 @@ class AddModal extends Component {
         doctors:this.state.doctors,
       }
 
-      axios.post('http://localhost:3000/secretary/create', appointment).then(res => console.log(res.data));
+      axios.post('http://localhost:3000/secretary/edit', appointment).then(res => console.log(res.data));
       this.setState({
         //Axios: Connects to DB and sends the data
       })
@@ -166,8 +169,8 @@ class AddModal extends Component {
     }
   
     render(){
-      const {firstname, lastname, patientcontact, process, notes, date, time, doctors} = this.state;
-      const values = {firstname, lastname, patientcontact, process, notes, date, time, doctors}
+      const {firstname, lastname, patientcontact, procedures, notes, date, time, doctors} = this.state;
+      const values = {firstname, lastname, patientcontact, procedures, notes, date, time, doctors}
       let button;
       let button2;
       if(this.state.step === 1){
@@ -176,46 +179,56 @@ class AddModal extends Component {
         button = <Button type="button" color="green" onClick={this.handleSubmit}>Submit</Button>
         button2 = <Button onClick={this.prevStep}>Back</Button>
       }
-      return (
-        <>
-          <SemanticToastContainer position='top-center'></SemanticToastContainer>
-          <Modal
-            onClose={this.setOpen}
-            onOpen={this.setOpen}
-            open={this.state.open}
-            as={Form}
-            onSubmit={this.handleSubmit}
-            trigger={
-            <div className="circular ui pink icon button with tooltip" data-title="Add (ENTER)" data-content="Adds an appointment" data-variation="basic" data-position="bottom center" id="add-button">
-            <i className="large plus icon"></i>
-            </div>}
-          >
-          
-          <Modal.Content>
-                  <AddProcMainForm
-                    handleChange = {this.handleChange}
-                    handleDoctorChange = {this.handleDoctorChange}
-                    handleProcessChange = {this.handleProcessChange}
-                    handleDate = {this.handleDate}
-                    handleTime = {this.handleTime}
-                    setOpen = {this.setOpen}
-                    prevStep = {this.prevStep}
-                    nextStep = {this.nextStep}
-                    step = {this.state.step}
 
-                  />
-          </Modal.Content>
-          <Modal.Actions>
-            <Button onClick={this.handleClose}>Cancel</Button>
-            {button2}
-            {button}
+      if(this.state.date === moment().toDate()){
+          console.log("I won't let you edit this")
+      }
+      else{
+        return (
+            <>
+            <SemanticToastContainer position='top-center'></SemanticToastContainer>
+            <Modal
+                onClose={this.setOpen}
+                onOpen={this.setOpen}
+                open={this.state.open}
+                as={Form}
+                onSubmit={this.handleSubmit}
+                trigger={
+                    <Card> 
+                    <Card.Header>
+                        {this.props.appointment.firstname+" "+this.props.appointment.lastname}
+                    </Card.Header>
+                </Card>
+                }
+            >
             
-          </Modal.Actions>
-          </Modal>
-        </>
-        
-        
-      )
+            <Modal.Content>
+                    <EditProcMainForm
+                        handleChange = {this.handleChange}
+                        handleDoctorChange = {this.handleDoctorChange}
+                        handleProcessChange = {this.handleProcessChange}
+                        handleDate = {this.handleDate}
+                        handleTime = {this.handleTime}
+                        setOpen = {this.setOpen}
+                        prevStep = {this.prevStep}
+                        nextStep = {this.nextStep}
+                        step = {this.state.step}
+                        values={values}
+
+                    />
+            </Modal.Content>
+            <Modal.Actions>
+                <Button onClick={this.handleClose}>Cancel</Button>
+                {button2}
+                {button}
+                
+            </Modal.Actions>
+            </Modal>
+            </>
+            
+            
+        )
+        }
     }
   }
-export default AddModal
+export default EditModal

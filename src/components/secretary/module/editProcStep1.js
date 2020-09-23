@@ -14,16 +14,16 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css"
 import "../secretary_css/addProcStep1.scss"
 
-class addProcStep1 extends Component {
+class editProcStep1 extends Component {
     constructor(props){
         super(props)
         this.state = {
-            date: moment().toDate(),
-            time: moment().toDate()
+            date: this.props.values.date,
+            time: this.props.values.time
         }
 
         this.onchangeDate = this.onchangeDate.bind(this)
-        this.onchangeTime = this.onchangeTime.bind(this)
+        this.onChangeTime = this.onChangeTime.bind(this)
     } 
 
     onchangeDate(date){
@@ -31,14 +31,13 @@ class addProcStep1 extends Component {
         date:date
       })
     }
-    onchangeTime(time){
+
+    onChangeTime=(time)=>{
         this.setState({
             time:time
         })
         this.props.handleTime(time)
     }
-
-
     
     //Continues to step 2
     continue = e =>{
@@ -54,14 +53,14 @@ class addProcStep1 extends Component {
   
     render(){
         const {handleDate} = this.props
-                                
+       
         return(
 
             <div>
                 <Form>
                     <Form.Input required
                     label = 'Date'
-                    className = "addProcStep1Date"
+                    className = "editProcStep1Date"
                     control={DatePicker}
                         selected={this.state.date}
                         onChange={this.onchangeDate}
@@ -70,20 +69,26 @@ class addProcStep1 extends Component {
                         
                         >
                     </Form.Input>
+                    {/* <Dropdown
+                    fluid
+                    selection
+                    name='time'
+                    selected={this.state.time}
+                    placeholder="Select Timeslot" options={timeSlotsArray}
+                    onChange={handleTime}/> */}
                     <Form.Input required
                         label = "Time"
-                        className = "addProcStep1Time"
+                        className = "editProcStep1Time"
                         control={DatePicker}
                             showTimeSelect
                             showTimeSelectOnly
                             selected={this.state.time}
                             timeIntervals={30}
                             dateFormat="h:mm aa"
-                            onChange={this.onchangeTime}
+                            onChange={this.onChangeTime}
                             minTime={moment().toDate().setHours(9)}
                             maxTime={moment().toDate().setHours(18)}>
                     </Form.Input>
-                        
                 </Form>
                 
                
@@ -91,4 +96,4 @@ class addProcStep1 extends Component {
         )
     }
   }
-export default addProcStep1
+export default editProcStep1

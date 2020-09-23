@@ -3,9 +3,8 @@ import React, {Component} from 'react';
 import {Tab, Table} from 'semantic-ui-react';
 import AppointmentCard from './secretary-edit-appointment-modal'
 import moment from 'moment'
-import qs from 'qs'
 
-class SecretaryTable extends Component{
+class day_all extends Component{
 
     constructor(props){
         super(props);
@@ -14,17 +13,17 @@ class SecretaryTable extends Component{
             appointments:[],
             currNumOfApp: 0,
             prevNumOfApp: 0,
-            weeks: this.props.week,
+            day: this.props.day,
         }
 
     }
     
 
     componentDidMount(){
-       const week = {
-           weeks: this.state.weeks
+       const day = {
+           day: this.state.day
        }
-        Axios.post('http://localhost:3000/secretary/week_all', week).then(res =>{
+        Axios.post('http://localhost:3000/secretary/day_all', day).then(res =>{
             return this.setState({
                 appointments: res.data.data.data
             })
@@ -97,4 +96,4 @@ class SecretaryTable extends Component{
     }
 }
 
-export default SecretaryTable
+export default day_all
