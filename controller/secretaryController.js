@@ -438,7 +438,10 @@ router.get("/table_header", function (request, result) {
 router.post("/day_all", urlencoder, async function (request, result) {
 
     // Get the date from sent data
-    let date = request.body.date;
+    let date = request.body.day;
+
+    let newDate = Date.parse(date);
+    let formattedDate = moment(newDate).format("MMM D YYYY");
 
     // Load up the html template
     // let all_day = fs.readFileSync('./views/module_templates/secretary_day_all.hbs', 'utf-8');
@@ -460,7 +463,7 @@ router.post("/day_all", urlencoder, async function (request, result) {
     for (var i = 0; i < timeSlotsArray.length; i++) {
         let timeSlot = timeSlotsArray[i];
         // get all appointments in this date and time slot
-        let appointmentlist = await Appointment.getAppointmentsByDateandTime(date, timeSlot);
+        let appointmentlist = await Appointment.getAppointmentsByDateandTime(formattedDate, timeSlot);
         let appointments = [];
         for (var k = 0; k < appointmentlist.length; k++) {
             let appointment = appointmentlist[k];

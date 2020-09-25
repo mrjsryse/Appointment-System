@@ -1,7 +1,9 @@
 import React, {Component} from 'react';
 import {Table} from 'semantic-ui-react'
 import moment from 'moment'
-import AddAppointment from './appointment_modal.component'
+import AddAppointment from './secretary-add-appointment-modal'
+
+import '../secretary_css/secretary-view.css'
 
 export default class SecretaryHeader extends Component{
     constructor(props){
@@ -31,7 +33,8 @@ export default class SecretaryHeader extends Component{
                 newArray.push(<Table.Cell onClick={()=>this.props.onChangeDate(this.state.weekUnparsed[i])} style={{backgroundColor}}>{this.state.days[i]}</Table.Cell>)
             }
             else{
-                newArray.push(<Table.Cell onClick={()=>this.props.onChangeDate(this.state.weekUnparsed[i])} >{this.state.days[i]}</Table.Cell>)
+                // newArray.push(<Table.Cell onClick={()=>this.props.onChangeDate(this.state.weekUnparsed[i])} >{this.state.days[i]}</Table.Cell>)
+                newArray.push(<Table.Cell onClick={this.props.onChangeDate} >{this.state.days[i]}</Table.Cell>)
             }
         }
         this.setState({
@@ -88,18 +91,18 @@ export default class SecretaryHeader extends Component{
         let newDate=Date.parse(this.state.today)
         let formatted =moment(newDate).format("MMMM D, YYYY")
 
-        newArray.push(<Table.Cell><AddAppointment></AddAppointment></Table.Cell>)
+        newArray.push(<Table.Cell id='secretary-add-appointment'><AddAppointment></AddAppointment></Table.Cell>)
         for(let i =0; i < this.state.days.length; i++){
             if(this.state.days[i] == formatted){
-                newArray.push(<Table.Cell onClick={()=>this.props.onChangeDate(this.state.weekUnparsed[i])} style={{backgroundColor}}>{this.state.days[i]}</Table.Cell>)
+                newArray.push(<Table.Cell id="sec-header-child" onClick={()=>this.props.onChangeDate(this.state.weekUnparsed[i])} style={{backgroundColor}}>{this.state.days[i]}</Table.Cell>)
             }
             else{
-                newArray.push(<Table.Cell onClick={()=>this.props.onChangeDate(this.state.weekUnparsed[i])} >{this.state.days[i]}</Table.Cell>)
+                newArray.push(<Table.Cell id="sec-header-child" onClick={()=>this.props.onChangeDate(this.state.weekUnparsed[i])} >{this.state.days[i]}</Table.Cell>)
             }
         }
 
         return(
-            <Table id="SECHEADER" columns='8' celled textAlign='center' style={{height:70+'px'}}>
+            <Table id="SECHEADER" celled textAlign='center' style={{height:70+'px'}} compact>
                 <Table.Body>
                     <Table.Row children={newArray}/>
                     

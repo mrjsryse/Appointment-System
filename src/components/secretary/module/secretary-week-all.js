@@ -1,11 +1,12 @@
 import Axios from 'axios';
 import React, {Component} from 'react';
-import {Tab, Table} from 'semantic-ui-react';
+import {Tab, Table, TableRow} from 'semantic-ui-react';
 import AppointmentCard from './secretary-edit-appointment-modal'
-import moment from 'moment'
-import qs from 'qs'
 
-class SecretaryTable extends Component{
+/* CSS FILES */
+import '../secretary_css/secretary-view.css'
+
+class week_all extends Component{
 
     constructor(props){
         super(props);
@@ -40,19 +41,15 @@ class SecretaryTable extends Component{
         return this.state.appointments.map(({slot, weekAppointments}, index)=>{
             return(
             <Table.Row key={index}>
-                <Table.Cell>{slot}</Table.Cell>
+                <Table.Cell id="week-all-time-cell">{slot}</Table.Cell>
                 {   
                     weekAppointments.map(({appointments})=>{
-                        return( <Table.Cell>
+                        return( <Table.Cell id='week-all-table-cell'>
                                         {
                                            appointments.map((appointment)=>
-                                                // <Table.Row key={appointment._id}>
-                                                //     <Table.Cell style={{width:10+'px'}}>
-                                                        <AppointmentCard
+                                                        <AppointmentCard id="secretary-appointment-card"
                                                             appointment={appointment}
                                                         />
-                                                //     </Table.Cell>
-                                                // </Table.Row>
                                             )
                                         }
 
@@ -82,19 +79,23 @@ class SecretaryTable extends Component{
     render(){
 
        return(
-            <Table id='week_all' celled fixed textAlign='center' columns='8'>
-                <Table.Header fullWidth>
-                    <Table.Row>
-                        <Table.HeaderCell>Weekly Appointments</Table.HeaderCell>
-                    </Table.Row>
-                </Table.Header> 
-                <Table.Body>
-                        {this.appointmentlist()}
+            <>
+                <Table id="table-header-title" compact>
+                    <Table.Header fullWidth>
+                        <TableRow textAlign='center'>
+                            <Table.Cell>Weekly Appointments</Table.Cell>
+                        </TableRow>
+                    </Table.Header>
+                </Table>
+                <Table id='week_all' celled fixed textAlign='center' compact>
+                    <Table.Body>
                     
-                </Table.Body>
-            </Table>
+                            {this.appointmentlist()}
+                    </Table.Body>
+                </Table>
+            </>
         )
     }
 }
 
-export default SecretaryTable
+export default week_all

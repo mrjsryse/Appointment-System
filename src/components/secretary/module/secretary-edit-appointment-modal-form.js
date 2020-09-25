@@ -2,8 +2,8 @@ import React, {Component} from 'react';
 import { Step } from 'semantic-ui-react'
 
 
-import AddProcStep1 from "./addProcStep1";
-import AddProcStep2 from "./addProcStep2";
+import EditProcStep1 from "./secretary-edit-appointment-modal-form-step1";
+import EditProcStep2 from "./secretary-edit-appointment-modal-form-step2";
 
 
 
@@ -11,7 +11,7 @@ import "../secretary_css/pickerStyle.scss"
 import "react-datepicker/dist/react-datepicker.css"
 
 
-class addProcMainForm extends Component {
+class EditProcMainForm extends Component {
 
   
     render(){
@@ -38,15 +38,16 @@ class addProcMainForm extends Component {
                             </Step>
                         </Step.Group>
                     </div>
-                        <AddProcStep1 
+                        <EditProcStep1 
                             nextStep = {nextStep}
                             handleChange={handleChange}
                             handleDate={handleDate}
                             values={values}
                             setOpen={setOpen}
                             handleTime={handleTime}
+                            
                         >
-                        </AddProcStep1>
+                        </EditProcStep1>
                 </div>
                 )
             case 2:
@@ -69,17 +70,18 @@ class addProcMainForm extends Component {
                                 </Step.Group>
                              </div>
                         
-                            <AddProcStep2
+                            <EditProcStep2
                                 prevStep = {prevStep}
                                 handleChange={handleChange}
                                 setOpen={setOpen}
                                 handleTime={handleTime}
                                 handleDoctorChange={handleDoctorChange}
                                 handleProcessChange={handleProcessChange}
+                                values={values}
                             />
                         </div> 
                     )
         }
     }
   }
-export default addProcMainForm
+export default EditProcMainForm

@@ -57,7 +57,7 @@ class addProcStep2 extends Component {
                             ...response.data.map(doctor =>{
                                 return{
                                     key: doctor._id,
-                                    text: doctor.firstname+" "+doctor.lastname,
+                                    text: "DR. "+doctor.lastname,
                                     value: doctor._id
                                 }
                             })

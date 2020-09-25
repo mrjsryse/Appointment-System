@@ -1,12 +1,15 @@
 import React, {Component} from 'react';
-import Navbar from "../module/secretary_navigationbar"
-import AddAppointment from "../module/appointment_modal.component"
+import Navbar from "../module/secretary-navigationbar"
+import AddAppointment from "../module/secretary-add-appointment-modal"
 import {Grid, Header, Dropdown} from "semantic-ui-react"
 import moment from 'moment'
 import axios from 'axios'
-import SecretaryHeader from "../module/secretary_header"
-import SecretaryTable from "../module/secretary_table"
-import Trrial from "../module/day_all.component"
+import SecretaryHeader from "../module/secretary-header"
+import SecretaryTable from "../module/secretary-week-all"
+import Trrial from "../module/secretary-day-all"
+
+/*CSS FILES*/
+import '../secretary_css/secretary-view.css'
 
 export default class Secretary extends Component{
 
@@ -172,6 +175,7 @@ export default class Secretary extends Component{
         else if(this.state.view == 'day'){
             currView = <Trrial
                             day={this.state.date}
+                            appointments={this.state.appointments}
                         >
                             
                         </Trrial>
@@ -206,7 +210,7 @@ export default class Secretary extends Component{
                 >
 
                 </SecretaryHeader>
-                <div style={{height: 840+'px', overflowY:'scroll', overflowX:'scroll'}}>
+                <div style={{height: 840+'px', margin:0+'px', overflowY:"auto"}}>
                 {currView}
                 </div>
                 

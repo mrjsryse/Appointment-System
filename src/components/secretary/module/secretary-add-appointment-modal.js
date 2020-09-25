@@ -10,7 +10,7 @@ import 'react-semantic-toasts/styles/react-semantic-alert.css';
 
 
 
-import AddProcMainForm from "./addProcMainForm.component"
+import AddProcMainForm from "./secretary-add-appointment-modal-form"
 
 
 

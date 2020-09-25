@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import { Route, Link, BrowserRouter as Router } from 'react-router-dom';
 import App from './App';
-import Secretary from "./components/secretary/pages/secretary_view";
+import Secretary from "./components/secretary/pages/secretary-view";
 import Admin from "./components/admin/pages/admin"
 import * as serviceWorker from './serviceWorker';
 import 'semantic-ui-css/semantic.min.css';

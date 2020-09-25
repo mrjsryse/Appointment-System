@@ -1,12 +1,7 @@
 import React, {Component} from 'react';
 import moment from 'moment';
 import {Modal, Form, Button} from 'semantic-ui-react'
-import DatePicker from 'react-datepicker'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBoxTissue, faCalendar} from '@fortawesome/free-solid-svg-icons'
 import axios from 'axios'
-import SecretaryTable from './secretary-week-all'
-
 import { SemanticToastContainer, toast } from 'react-semantic-toasts';
 import 'react-semantic-toasts/styles/react-semantic-alert.css';
 import {Card} from 'semantic-ui-react';
@@ -14,6 +9,7 @@ import {Card} from 'semantic-ui-react';
 
 
 import EditProcMainForm from "./secretary-edit-appointment-modal-form"
+import '../secretary_css/secretary-view.css'
 
 
 
@@ -34,6 +30,8 @@ class EditModal extends Component {
             doctors: this.props.appointment.doctor,
             patientcontact: this.props.appointment.patientcontact,
             time: moment(this.props.appointment.time, "h:mm A").toDate(),
+            currentProcs:[],
+            currentDocs:[],
         open: false,
         step: 1,
       }
@@ -47,7 +45,6 @@ class EditModal extends Component {
     
 
     componentDidMount(){
-
       //Changes back the procedures and doctors to IDs rather than objects
       this.setState({
         procedures:[
@@ -59,6 +56,16 @@ class EditModal extends Component {
           this.state.doctors.map(doctor=>{
             return doctor._id
           })
+        ],
+        currentProcs:[
+            this.state.procedures.map(procedure=>{
+                return procedure.processname
+              })
+        ],
+        currentDocs:[
+            this.state.doctors.map(doctor=>{
+                return  "Dr. "+ doctor.lastname
+              })
         ]
       })
     }
@@ -86,11 +93,30 @@ class EditModal extends Component {
     }, 1000)
     }
     setOpen(){
-      console.log(this.state.time)
-      this.setState({
+      if(moment(this.state.date).isBefore(moment().toDate())){
+            setTimeout(() => {
+            toast(
+                {
+                    description: <p>Cannot edit past dates</p>,
+                    icon: 'clock',
+                    animation: 'slide up',
+                    time:1000,
+                    color: 'red'
+    
+                },
+                () => console.log('toast closed')
+            );
+            }, 1000)
+          this.setState({
+              open:false
+          })
+      }
+      else{
+          this.setState({
         open: !this.state.open,
         step : 1
-      })
+            })
+        }
       
     }
 
@@ -182,6 +208,11 @@ class EditModal extends Component {
       })
       console.log(time)
     }
+
+    displaycontent=()=>{
+        return(console.log(this.state.currentDocs.join(', Dr.')))
+    }
+
   
     render(){
       const {firstname, lastname, patientcontact, procedures, notes, date, time, doctors} = this.state;
@@ -209,11 +240,16 @@ class EditModal extends Component {
                 as={Form}
                 onSubmit={this.handleSubmit}
                 trigger={
-                    <Card> 
-                    <Card.Header>
-                        {this.props.appointment.firstname+" "+this.props.appointment.lastname}
-                    </Card.Header>
-                </Card>
+                    <Card fluid id="secretary-card-day"> 
+                        <Card.Header>
+                            {this.props.appointment.firstname+" "+this.props.appointment.lastname}
+                        </Card.Header>
+                        <Card.Content>
+                            <text className="secretary-card-day-content">🦷: {this.state.currentProcs.join(", ")}</text><br/>
+                            <text className="secretary-card-day-content">📱: {patientcontact}</text><br/>
+                            <text className="secretary-card-day-content">👨‍⚕️: {this.state.currentDocs.join(", ")}</text>
+                        </Card.Content>
+                    </Card>
                 }
             >
             
