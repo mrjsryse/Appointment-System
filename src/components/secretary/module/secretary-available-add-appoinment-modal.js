@@ -242,6 +242,9 @@ class AddAvailableModal extends Component {
             time:this.state.time,
             doctors:this.state.doctors,
           }
+          if(Array.isArray(this.state.doctors[0])){
+            appointment.doctors = this.state.doctors[0]
+          }
   
           axios.post('http://localhost:3000/secretary/create', appointment).then(res =>{
             if(res.data.message == true){

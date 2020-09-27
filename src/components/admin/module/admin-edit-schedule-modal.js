@@ -49,15 +49,18 @@ class AdminEditScheduleModal extends React.Component {
         });
     }
 
-    handleSubmit = (event, { datakey, firstname, lastname, day, schedule, breaktime }) => {
+    handleSubmit = (
+        event,
+        { datakey, firstname, lastname, day, schedule, breaktime }
+    ) => {
         event.preventDefault();
         if (this.handleValidation()) {
-            let custom = this.state.custom
+            let custom = this.state.custom;
             let start = moment(this.state.start).format("k:mm");
             let end = moment(this.state.end).format("k:mm");
             let start_add;
             let end_add;
-            day = day.toLowerCase()
+            day = day.toLowerCase();
             if (this.state.start_add != null) {
                 start_add = moment(this.state.start_add).format("k:mm");
             }
@@ -65,15 +68,15 @@ class AdminEditScheduleModal extends React.Component {
                 end_add = moment(this.state.end_add).format("k:mm");
             }
 
-            if(!custom){
-                schedule[day][0] = start
-                schedule[day][1] = end
-                breaktime[day] = []
-            } else{
-                schedule[day][0] = start
-                breaktime[day][0] = end
-                breaktime[day][1] = start_add
-                schedule[day][1] = end_add
+            if (!custom) {
+                schedule[day][0] = start;
+                schedule[day][1] = end;
+                breaktime[day] = [];
+            } else {
+                schedule[day][0] = start;
+                breaktime[day][0] = end;
+                breaktime[day][1] = start_add;
+                schedule[day][1] = end_add;
             }
 
             const data = {
@@ -112,13 +115,7 @@ class AdminEditScheduleModal extends React.Component {
     };
 
     handleValidation() {
-        let {
-            custom,
-            start,
-            end,
-            start_add,
-            end_add,
-        } = this.state;
+        let { custom, start, end, start_add, end_add } = this.state;
         let formIsValid = true;
         let error = {
             start: false,
@@ -413,6 +410,7 @@ class AdminEditScheduleModal extends React.Component {
         let day;
         let schedule = this.props.schedule;
         let breaktime = this.props.breaktime;
+        let index;
         if (
             this.props.data != null &&
             this.props.data.firstname != null &&
@@ -422,6 +420,7 @@ class AdminEditScheduleModal extends React.Component {
             lastname = this.props.data.lastname;
             doctorID = this.props.data.doctorID;
             day = this.props.data.name;
+            index = this.props.data.index;
         }
 
         return (
@@ -569,12 +568,27 @@ class AdminEditScheduleModal extends React.Component {
                             <Icon name="check" />
                             SAVE CHANGES
                         </Button>
-                        <Icon
-                            name="trash"
-                            id="save-changes-schedule"
-                            size="big"
-                            style={{margin: "0 3.5px 0 3.5px"}}
-                        ></Icon>
+                        {day != undefined && schedule[day.toLowerCase()][0] !== undefined && (
+                            <Icon
+                                name="trash"
+                                id="save-changes-schedule"
+                                size="big"
+                                style={{ margin: "0 3.5px 0 3.5px" }}
+                                onClick={() => {
+                                    this.resetState();
+                                    this.props.handleModal(
+                                        "admin-delete-schedule",
+                                        {
+                                            day,
+                                            firstname,
+                                            lastname,
+                                            doctorID,
+                                            index,
+                                        }
+                                    );
+                                }}
+                            ></Icon>
+                        )}
                     </Modal.Actions>
                 </Modal>
             </>

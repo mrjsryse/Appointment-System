@@ -96,7 +96,7 @@ class AdminViewScheduleModal extends React.Component {
             if (schedule != null) {
                 schedule_table = (
                     <>
-                        {schedule.map(({ name, time }) => (
+                        {schedule.map(({ name, time }, index) => (
                             <Table.Row>
                                 <Table.Cell
                                     style={{
@@ -127,7 +127,7 @@ class AdminViewScheduleModal extends React.Component {
                                         name="edit"
                                         id={name.toString() + "-edit"}
                                         size="large"
-                                        onClick={()=>this.props.handleModal("admin-edit-schedule", {firstname, lastname, doctorID, name})}
+                                        onClick={()=>this.props.handleModal("admin-edit-schedule", {firstname, lastname, doctorID, name, index})}
                                     ></Icon>
                                 </Table.Cell>
                             </Table.Row>

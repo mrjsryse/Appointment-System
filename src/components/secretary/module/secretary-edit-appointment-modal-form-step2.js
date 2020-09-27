@@ -156,7 +156,6 @@ class addProcStep2 extends Component {
                             error={values.error.doctors}
                             onChange={handleDoctorChange}
                             placeholder='Doctor/s'
-                            
                             options={this.state.doctors}
                             defaultValue={this.state.currentDocs}
                             selection fluid multiple

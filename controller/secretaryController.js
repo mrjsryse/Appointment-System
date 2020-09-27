@@ -54,7 +54,7 @@ router.get("/", async function (req, res) {
     //         doctor: doctor,
     //         process: process
     //     });
-            res.redirect("/secretary")
+            // res.redirect("/secretary")
     } else {
         res.redirect("/login");
     }

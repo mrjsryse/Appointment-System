@@ -361,9 +361,12 @@ export default class EditModal extends Component {
       console.log(e.target.value)
     }
     handleSubmit=(e)=>{
+
+      
       
       e.preventDefault()
       if(this.handleValidation()){
+        
           const appointment = {
           appointmentID: this.state.app_id,
           firstname:this.state.firstname,
@@ -375,11 +378,18 @@ export default class EditModal extends Component {
           time:this.state.time,
           doctors:this.state.doctors,
         }
+        if(Array.isArray(this.state.procedures[0])){
+          appointment.procedures = this.state.procedures[0]
+        }
+        if(Array.isArray(this.state.doctors[0])){
+          appointment.doctors = this.state.doctors[0]
+        }
 
         axios.post('http://localhost:3000/secretary/edit', appointment).then(res => {
           console.log(res.data)
           this.props.handleDayAppointmentUpdate()
           this.props.handleDayDocAppointmentUpdate()
+
         
         });
         setTimeout(() => {

@@ -2,6 +2,7 @@ import React from "react";
 import axios from "axios";
 import { Modal, Icon, Button } from "semantic-ui-react";
 import { toast } from "react-semantic-toasts";
+import { faRubleSign } from "@fortawesome/free-solid-svg-icons";
 
 class AdminDeleteUnavailableModal extends React.Component {
     constructor(props) {
@@ -70,13 +71,13 @@ class AdminDeleteUnavailableModal extends React.Component {
             <Modal
                 size="mini"
                 id="confirmation-modal"
-                onClose={() => this.handleClose()}
+                onClose={() => this.handleClose(doctorID, firstname, lastname)}
                 onOpen={() => this.handleOpen()}
                 open={open}
             >
                 <Icon
                     name="close"
-                    onClick={this.handleClose}
+                    onClick={() => this.handleClose(doctorID, firstname, lastname)}
                     id="close-confirmation-modal"
                 ></Icon>
                 <Modal.Header as="h2">

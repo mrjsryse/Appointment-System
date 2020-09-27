@@ -26,6 +26,7 @@ import axios from "axios";
 import AdminViewScheduleModal from "../module/admin-view-schedule-modal";
 import AdminAddUnavailableModal from "../module/admin-add-unavailable-modal";
 import AdminDeleteUnavailableModal from "../module/admin-delete-unavailable-modal";
+import AdminDeleteScheduleModal from "../module/admin-delete-schedule-modal";
 class Admin extends React.Component {
     constructor(props) {
         super(props);
@@ -325,6 +326,15 @@ class Admin extends React.Component {
                     unavailable={this.state.unavailable}
                     activeDimmer={this.state.activeScheduleDimmer}
                 ></AdminViewScheduleModal>
+                <AdminDeleteScheduleModal
+                    handleModal={this.handleModal}
+                    activeModal={this.state.activeModal}
+                    data={this.state.data}
+                    handleUpdateTable={this.handleUpdateScheduleTable}
+                    sched_time={this.state.schedule}
+                    schedule={this.state.editSchedule}
+                    breaktime={this.state.editBreaktime}
+                ></AdminDeleteScheduleModal>
             </>
         );
     }

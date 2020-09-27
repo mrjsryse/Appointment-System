@@ -85,7 +85,7 @@ appointmentSchema.statics.delete = async function(appointmentID){
 }
 // updates an appointmnet
 appointmentSchema.statics.updateAppointment = async function(appointmentID, updated){
-    return await this.updateOne({
+    return await this.update({
         _id: appointmentID
     }, {
         firstname: updated.firstname,
