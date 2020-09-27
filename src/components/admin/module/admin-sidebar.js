@@ -1,10 +1,18 @@
 import React from "react";
 import Logo from "./logo.js";
 import { Menu, Button, Icon, Segment } from "semantic-ui-react";
+import axios from 'axios';
 
 class AdminSidebar extends React.Component {
     handleItemClick(name) {
         this.props.handleItem(name);
+        if (name==='Logout'){
+            
+            axios.get('/logout').then(window.location.href ="/");
+            ;
+
+        }
+
     }
 
     handleModal(name) {

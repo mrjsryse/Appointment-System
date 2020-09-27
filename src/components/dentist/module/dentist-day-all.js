@@ -1,11 +1,11 @@
 import Axios from 'axios';
 import React, {Component} from 'react';
 import {Tab, Table} from 'semantic-ui-react';
-import AppointmentCard from './secretary-edit-appointment-modal-day-all'
+import AppointmentCard from './dentist-appointment-modal-day-all.js'
 import moment from 'moment'
-import '../secretary_css/secretary-view.css'    
+import '../dentist_css/dentist-view.css'    
 
-class day_all_doc extends Component{
+class day_all extends Component{
 
     constructor(props){
         super(props);
@@ -13,14 +13,12 @@ class day_all_doc extends Component{
         this.state={
             appointments:this.props.appointments,
             day: this.props.day,
-            doc: this.props.doc
         }
 
     }
     
     componentDidMount(){
-        this.props.handleDayDocAppointmentUpdate()
-        console.log("Im in secretary-day-all-doc")
+        console.log("Im in secretary-day-all componentDidMount")
         this.setState({
             appointments:this.props.appointments
         })
@@ -30,21 +28,13 @@ class day_all_doc extends Component{
     componentDidUpdate(){
         if(this.props.day != this.state.day){
             console.log("Date Changed")
-            this.props.handleDayDocAppointmentUpdate()
+            this.props.handleDayAppointmentUpdate()
             this.setState({
                     day: this.props.day,
                 })
         }
-        else if(this.props.doc !== this.state.doc){
-            this.props.handleDayDocAppointmentUpdate()
-            this.setState({
-                doc: this.props.doc 
-            })
-        }
     }
     render(){
-        console.log("prop: ")
-        console.log(this.props.appointments)
 
        return(
            <>
@@ -67,11 +57,10 @@ class day_all_doc extends Component{
                                         <div id="day-all-div">
                                             {          
                                                 appointments.map((appointment)=>{
-                                                    return ( <AppointmentCard
+                                                   /* return ( <AppointmentCard
                                                         appointment={appointment}
                                                         handleDayAppointmentUpdate={this.props.handleDayAppointmentUpdate}
-                                                        handleDayDocAppointmentUpdate = {this.props.handleDayDocAppointmentUpdate}
-                                                            />)
+                                                            />)*/
                                             })
                                             }
                                         </div>
@@ -90,4 +79,4 @@ class day_all_doc extends Component{
     }
 }
 
-export default day_all_doc
+export default day_all

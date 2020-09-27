@@ -70,6 +70,7 @@ class week_all extends Component{
                                                                         <AppointmentCard id={"secretary-appointment-card-" + appointment._id}
                                                                             appointment={appointment}
                                                                             handleWeekAppointmentUpdate={this.props.handleWeekAppointmentUpdate}
+                                                                            handleDocWeekAppointmentUpdate={this.props.handleDocWeekAppointmentUpdate}
                                                                         />
                                                             )
                                                         }

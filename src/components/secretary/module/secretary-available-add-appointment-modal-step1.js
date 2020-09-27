@@ -72,6 +72,7 @@ class addAvailProcStep1 extends Component {
                     label = 'Date'
                     className = "addProcStep1Date"
                     control={DatePicker}
+                    id="secretary-available-datepicker"
                         selected={this.state.date}
                         // onChange={this.onchangeDate}
                         // onSelect={handleDate}
@@ -88,6 +89,7 @@ class addAvailProcStep1 extends Component {
                                 placeholder = "Time"
                                 className = "addProcStep1Time"
                                 control={DatePicker}
+                                id="secretary-available-timepicker"
                                     showTimeSelect
                                     showTimeSelectOnly
                                     selected={this.state.time}

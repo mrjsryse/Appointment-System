@@ -4,8 +4,8 @@ import {Modal, Form, Button, Icon, Card} from 'semantic-ui-react'
 import axios from 'axios'
 import { SemanticToastContainer, toast } from 'react-semantic-toasts';
 import 'react-semantic-toasts/styles/react-semantic-alert.css';
-import EditProcMainForm from "./secretary-edit-appointment-modal-form"
-import '../secretary_css/secretary-view.css'
+//import EditProcMainForm from "./dentist-appointment-modal-form"
+import '../dentist_css/dentist-view.css'
 
 
 
@@ -379,7 +379,6 @@ export default class EditModal extends Component {
         axios.post('http://localhost:3000/secretary/edit', appointment).then(res => {
           console.log(res.data)
           this.props.handleDayAppointmentUpdate()
-          this.props.handleDayDocAppointmentUpdate()
         
         });
         setTimeout(() => {
@@ -518,7 +517,7 @@ export default class EditModal extends Component {
             >
             
             <Modal.Content>
-                    <EditProcMainForm
+                  {/*}  <EditProcMainForm
                         handleChange = {this.handleChange}
                         handleDoctorChange = {this.handleDoctorChange}
                         handleProcessChange = {this.handleProcessChange}
@@ -530,7 +529,7 @@ export default class EditModal extends Component {
                         step = {this.state.step}
                         values={values}
 
-                    />
+            />*/}
             </Modal.Content>
             <Modal.Actions>
                 <Button onClick={this.handleClose}>Cancel</Button>

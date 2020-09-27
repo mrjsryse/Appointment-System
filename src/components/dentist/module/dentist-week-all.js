@@ -1,12 +1,12 @@
 import Axios from 'axios';
 import React, {Component} from 'react';
 import {Tab, Table, TableRow} from 'semantic-ui-react';
-import AppointmentCard from './secretary-edit-appointment-modal'
+import AppointmentCard from './dentist-appointment-modal'
 
 /* CSS FILES */
-import '../secretary_css/secretary-view.css'
+import '../dentist_css/dentist-view.css'
 
-class week_all_doc extends Component{
+class week_all extends Component{
 
     constructor(props){
         super(props);
@@ -14,37 +14,38 @@ class week_all_doc extends Component{
         this.state={
             appointments:this.props.appointments,
             weeks: this.props.week,
-            doc: this.props.doc
         }
 
     }
     
 
-    componentDidMount(){
-       this.props.handleDocWeekAppointmentUpdate()
-       
+    // componentDidMount(){
+    //    const week = {
+    //        weeks: this.state.weeks
+    //    }
+    //     Axios.post('http://localhost:3000/secretary/week_all', week).then(res =>{
+    //         return this.setState({
+    //             appointments: res.data.data.data
+    //         })
+            
+    //     })
         
-    }
+    // }
 
     componentDidUpdate(){
         if(this.props.week != this.state.weeks){
             console.log("Hello")
-            this.props.handleDocWeekAppointmentUpdate()
+            this.props.handleWeekAppointmentUpdate()
             this.setState({
                 weeks: this.props.week
-            })
-        }
-        else if(this.props.doc !== this.state.doc){
-            this.props.handleDocWeekAppointmentUpdate()
-            this.setState({
-                doc: this.props.doc 
             })
         }
     }
     render(){
         console.log("prop: ")
-        console.log(this.props.appointments)
-
+        console.log(this.props.week)
+        console.log("state: ")
+        console.log(this.state.weeks)
        return(
             <>
                 <Table id="table-header-title" compact>
@@ -66,11 +67,10 @@ class week_all_doc extends Component{
                                         return( <Table.Cell id={'week-all-table-cell'} name={'week-all-td-'+index}>
                                                         {
                                                            appointments.map((appointment)=>
-                                                                        <AppointmentCard id={"secretary-appointment-card-" + appointment._id}
+                                                                      {/*}  <AppointmentCard id={"secretary-appointment-card-" + appointment._id}
                                                                             appointment={appointment}
                                                                             handleWeekAppointmentUpdate={this.props.handleWeekAppointmentUpdate}
-                                                                            handleDocWeekAppointmentUpdate={this.props.handleDocWeekAppointmentUpdate}
-                                                                        />
+                                                        /> */}
                                                             )
                                                         }
                 
@@ -88,4 +88,4 @@ class week_all_doc extends Component{
     }
 }
 
-export default week_all_doc
+export default week_all

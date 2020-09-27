@@ -316,6 +316,7 @@ export default class Secretary extends Component{
                             week={this.state.weekUnparsed}
                             appointments={this.state.weekAppointments}
                             handleWeekAppointmentUpdate={this.handleWeekAppointmentUpdate}
+                            handleDocWeekAppointmentUpdate={this.handleDocWeekAppointmentUpdate}
                             handleShowDimmer={this.handleShowDimmer}
                             handleHideDimmer={this.handleHideDimmer}
                         >
@@ -326,6 +327,7 @@ export default class Secretary extends Component{
                             day={this.state.date}
                             appointments={this.state.dayAppointments}
                             handleDayAppointmentUpdate={this.handleDayAppointmentUpdate}
+                            handleDayDocAppointmentUpdate={this.handleDayDocAppointmentUpdate}
                             handleShowDimmer={this.handleShowDimmer}
                             handleHideDimmer={this.handleHideDimmer}
                         > 
@@ -352,6 +354,7 @@ export default class Secretary extends Component{
                             week={this.state.weekUnparsed}
                             appointments={this.state.weekAppointmentsDoc}
                             handleDocWeekAppointmentUpdate={this.handleDocWeekAppointmentUpdate}
+                            handleWeekAppointmentUpdate={this.handleWeekAppointmentUpdate}
                             handleShowDimmer={this.handleShowDimmer}
                             handleHideDimmer={this.handleHideDimmer}
                             doc={this.state.filter}
@@ -362,6 +365,7 @@ export default class Secretary extends Component{
                             day={this.state.date}
                             appointments={this.state.dayAppointmentsDoc}
                             handleDayDocAppointmentUpdate={this.handleDayDocAppointmentUpdate}
+                            handleDayAppointmentUpdate={this.handleDayAppointmentUpdate}
                             handleShowDimmer={this.handleShowDimmer}
                             handleHideDimmer={this.handleHideDimmer}
                             doc={this.state.filter}

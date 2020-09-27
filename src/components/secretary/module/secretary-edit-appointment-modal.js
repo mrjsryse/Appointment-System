@@ -341,6 +341,7 @@ class EditModal extends Component {
       axios.post('http://localhost:3000/secretary/edit', appointment).then(res => {
         console.log(res.data)
         this.props.handleWeekAppointmentUpdate();
+        this.props.handleDocWeekAppointmentUpdate();
       });
       setTimeout(() => {
         toast(
@@ -445,7 +446,7 @@ class EditModal extends Component {
       } else{
         button = <Button type="button" color="green" onClick={this.handleSubmit}>Submit</Button>
         button2 = <Button onClick={this.prevStep}>Back</Button>
-        button3 = <Button>Delete</Button>
+        button3 = <Button onClick={this.setOpen2} color="red"><Icon name="trash"/>Delete</Button>
       }
 
       if(this.state.date === moment().toDate()){
@@ -460,7 +461,7 @@ class EditModal extends Component {
                 onOpen={this.setOpen}
                 open={this.state.open}
                 as={Form}
-                onSubmit={this.handleSubmit}
+                // onSubmit={this.handleSubmit}
                 trigger={
                     <Card> 
                     <Card.Header id={this.props.appointment.firstname+"_"+this.props.appointment.lastname}>

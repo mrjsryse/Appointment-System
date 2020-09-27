@@ -680,16 +680,16 @@ router.post("/edit", urlencoder, async (req, res) => {
     let newDate = Date.parse(date);
     let formattedDate = moment(newDate).format("MMM D YYYY");
 
-    const appointment ={
-        firstname: firstname,
-        lastname: lastname,
-        patientcontact: patientcontact,
-        process:process,
-        doctor:doctor,
-        notes:notes,
+    const appointment = new Appointment({ 
+        firstname,
+        lastname,
+        patientcontact,
+        process: process,
+        doctor: doctor,
+        notes,
         time: formattedTime,
         date: formattedDate
-    };
+    });
     console.log("doctors1: "+ appointment.doctor)
     console.log("process1: "+ appointment.process)
     
