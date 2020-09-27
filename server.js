@@ -10,7 +10,6 @@ const urlencoder = bodyParser.urlencoded({
 }) 
 
 const path = require("path");
-const port = process.env.PORT || 5000;
 
 var app = new express();
 
@@ -51,7 +50,7 @@ app.use('/dentist', dentistRoute)
 
 app.use(require("./controller"));
 
- var server = app.listen(port, function(){
+ var server = app.listen(process.env.PORT || 8080, function(){
      console.log("Server is running at port 8080...");
  })
 app.get('/test', async (req, res) => {
