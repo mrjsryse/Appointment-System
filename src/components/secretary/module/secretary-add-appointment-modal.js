@@ -5,7 +5,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCalendar} from '@fortawesome/free-solid-svg-icons'
 import axios from 'axios'
 
-import { SemanticToastContainer, toast } from 'react-semantic-toasts';
+import { toast } from 'react-semantic-toasts';
 import 'react-semantic-toasts/styles/react-semantic-alert.css';
 
 
@@ -29,17 +29,159 @@ class AddModal extends Component {
         process:'',
         notes:'',
         date: moment().toDate(),
-        time: moment().toDate(),
+        time: moment("8:00 AM", "h:mm aa").toDate(),
         doctor:'',
         doctors:[],
         open: false,
         step: 1,
+        error: {
+          firstname: false,
+          lastname: false,
+          username: false,
+          password: false,
+          patientcontact: false,
+          time: false,
+          date:false,
+          doctors: false,
+          procedures: false
+
+      },
       }
       this.setOpen = this.setOpen.bind(this);
       this.handleChange = this.handleChange.bind(this);
       this.handleDate = this.handleDate.bind(this);
       this.handletime = this.handleDate.bind(this);
       this.handleDoctorChange = this.handleDoctorChange.bind(this);
+    }
+
+    handleValidation=()=>{
+      const checkfirst = /^[a-z A-Z]+$/;
+      const checklast = /^[a-z A-Z.\-_]+$/;
+      const checkcontact = /^[+-]?\d{7,12}$/;
+
+      let firstname = this.state.firstname.trim();
+      let lastname = this.state.lastname.trim();
+      let patientcontact = this.state.patientcontact.trim();
+      let procedures = this.state.procedures;
+      let date = this.state.date;
+      let time = this.state.time;
+      let doctors = this.state.doctors;
+
+      let error = this.state.error;
+      let formIsValid = true;
+
+      if(moment(moment(time, "h:mm A").toDate()).isBefore(moment().toDate()) && moment(date).isSame(moment().toDate(), 'day')){
+          error['time']= true;
+          toast({
+            type: "error",
+            title: "Error",
+            description: <p>Please input valid time</p>,
+            icon: "cancel",
+          });
+          formIsValid = false;
+      }
+      if(firstname === ""|| !firstname.match(checkfirst)){
+        error['firstname']= true;
+        toast({
+          type: "error",
+          title: "Error",
+          description: <p>Please input a valid firstname</p>,
+          icon: "cancel",
+        });
+        formIsValid = false;
+
+      } else if( firstname.length < 2){
+        error['firstname'] = true;
+        toast({
+          type: "error",
+          title: "Error",
+          description: <p>Firstname is too short</p>,
+          icon: "cancel",
+        });
+        formIsValid = false;
+      }
+      if(lastname ===  ""|| !lastname.match(checklast)){
+        error["lastname"] = true;
+        toast({
+          type: "error",
+          title: "Error",
+          description: <p>Please input a valid lastname</p>,
+          icon: "cancel",
+        });
+        formIsValid = false;
+      } else if(lastname.length < 2){
+        error["lastname"] = true;
+        toast({
+            type: "error",
+            title: "Error",
+            description: <p>Lastname is too short</p>,
+            icon: "cancel",
+        });
+        formIsValid = false;
+      }
+
+      if(patientcontact === "" || !patientcontact.match(checkcontact)){
+        error['patientcontact']= true;
+        toast({
+          type: "error",
+          title: "Error",
+          description: <p>Please input a valid contact number</p>,
+          icon: "cancel",
+        });
+        formIsValid = false;
+      }
+
+      if(procedures.length < 1 || procedures === undefined){
+        error['procedures']= true;
+        toast({
+          type: "error",
+          title: "Error",
+          description: <p>Must have at least 1 procedure</p>,
+          icon: "cancel",
+        });
+        formIsValid = false;
+      }
+
+      if(doctors.length < 1 || doctors === undefined){
+        error['doctors']= true;
+        toast({
+          type: "error",
+          title: "Error",
+          description: <p>Must have at least 1 doctor</p>,
+          icon: "cancel",
+        });
+        formIsValid = false;
+      }
+
+      if(formIsValid){
+        let checkData = {
+          dateInput: date.toString(),
+          timeInput: time.toString(),
+          doctors: doctors
+        }
+
+      axios.post("/secretary/check_app_exists", checkData, function(data){
+          
+          if(data === true){
+            error['doctors']= true;
+            toast({
+              type: "error",
+              title: "Error",
+              description: <p>Doctor is already booked on this date and time</p>,
+              icon: "cancel",
+            });
+            formIsValid = false;
+          } else{
+            formIsValid = true;
+          }
+        })
+
+        return formIsValid;
+
+      }
+
+
+
     }
 
     
@@ -63,8 +205,6 @@ class AddModal extends Component {
 
             },
             () => console.log('toast closed'),
-            () => console.log('toast clicked'),
-            () => console.log('toast dismissed')
         );
     }, 1000)
     }
@@ -84,39 +224,47 @@ class AddModal extends Component {
       console.log(e.target.value)
     }
     handleSubmit=e=>{
-      e.preventDefault()
-      const appointment = {
-        firstname:this.state.firstname,
-        lastname:this.state.lastname,
-        patientcontact: this.state.patientcontact,
-        procedures: this.state.procedures,
-        notes:this.state.notes,
-        date:this.state.date,
-        time:this.state.time,
-        doctors:this.state.doctors,
-      }
-
-      axios.post('http://localhost:3000/secretary/create', appointment).then(res => console.log(res.data));
-      this.setState({
-        //Axios: Connects to DB and sends the data
-      })
-      setTimeout(() => {
-        toast(
-            {
-                description: <p>Appointment Created</p>,
-                icon: 'check',
-                animation: 'slide up',
-                time:1000,
-                color: 'green'
-
-            },
-            () => console.log('toast closed'),
-            () => console.log('toast clicked'),
-            () => console.log('toast dismissed')
-        );
-    }, 1000)
-      this.setOpen();
-      // window.location.reload()
+        e.preventDefault()
+        if(this.handleValidation()){
+          const appointment = {
+            firstname:this.state.firstname,
+            lastname:this.state.lastname,
+            patientcontact: this.state.patientcontact,
+            procedures: this.state.procedures,
+            notes:this.state.notes,
+            date:this.state.date,
+            time:this.state.time,
+            doctors:this.state.doctors,
+          }
+  
+          axios.post('http://localhost:3000/secretary/create', appointment).then(res =>{
+            if(res.data.message == true){
+              setTimeout(() => {
+                toast(
+                    {
+                        description: <p>Appointment Created</p>,
+                        icon: 'check',
+                        animation: 'slide up',
+                        time:1000,
+                        color: 'green'
+      
+                    },
+                );
+              }, 1000)
+              this.setOpen();
+              this.props.handleWeekAppointmentUpdate()
+              this.props.handleDayAppointmentUpdate()
+              this.props.handleWeekAvailable()
+            } else {
+              toast({
+                type: 'error',
+                title: 'Error',
+                description: <p>Invalid Appointment</p>,
+                icon: "cancel"
+              })
+            }
+          });
+        }
       
     } 
 
@@ -166,8 +314,8 @@ class AddModal extends Component {
     }
   
     render(){
-      const {firstname, lastname, patientcontact, process, notes, date, time, doctors} = this.state;
-      const values = {firstname, lastname, patientcontact, process, notes, date, time, doctors}
+      const {firstname, lastname, patientcontact, process, notes, date, time, doctors, doctor, error} = this.state;
+      const values = {firstname, lastname, patientcontact, process, notes, date, time, doctors, doctor, error}
       let button;
       let button2;
       if(this.state.step === 1){
@@ -178,7 +326,6 @@ class AddModal extends Component {
       }
       return (
         <>
-          <SemanticToastContainer position='top-center'></SemanticToastContainer>
           <Modal
             onClose={this.setOpen}
             onOpen={this.setOpen}
@@ -202,6 +349,7 @@ class AddModal extends Component {
                     prevStep = {this.prevStep}
                     nextStep = {this.nextStep}
                     step = {this.state.step}
+                    values = {values}
 
                   />
           </Modal.Content>

@@ -53,13 +53,17 @@ class AdminDeleteDentistModal extends React.Component {
 
         return (
             <Modal
-                closeIcon
                 size="mini"
-                id="delete-user-modal"
+                id="delete-dentist-modal"
                 onClose={() => this.handleClose()}
                 onOpen={() => this.handleOpen()}
                 open={open}
             >
+                <Icon
+                    name="close"
+                    onClick={this.handleClose}
+                    id="close-delete-dentist-modal"
+                ></Icon>
                 <Modal.Header as="h2">
                     <Icon name="trash"></Icon>
                     Delete Dentist

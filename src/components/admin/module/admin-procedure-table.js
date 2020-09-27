@@ -35,6 +35,7 @@ class AdminProcedureTable extends React.Component {
                             <Table.Cell>{processname}</Table.Cell>
                             <Table.Cell textAlign="right">
                                 <Button
+                                    id={processname.toString()+"-edit"}
                                     onClick={() =>
                                         this.handleModal(
                                             "admin-edit-procedure",
@@ -46,6 +47,7 @@ class AdminProcedureTable extends React.Component {
                                 </Button>
                                 <Button
                                     negative
+                                    id={processname.toString()+"-delete"}
                                     onClick={() =>
                                         this.handleModal(
                                             "admin-delete-procedure",

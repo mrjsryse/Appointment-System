@@ -8,37 +8,171 @@ class AdminResetSecretaryModal extends React.Component {
         currentPassword: "",
         newPassword: "",
         confirmNewPassword: "",
+        error: {
+            currentPassword: false,
+            newPassword: false,
+            confirmNewPassword: false,
+        },
     };
+
     handleOpen = () => this.props.handleModal("admin-reset-secretary");
 
-    handleClose = () => this.props.handleModal("none");
+    handleClose = () => {
+        this.resetState();
+        this.props.handleModal("none");
+    };
 
     handleModal(name) {
         this.props.handleModal(name);
     }
 
-    handleSubmit = (event) => {
-        event.preventDefault();
-        const data = {
-            username: "secretary",
-            newPassword: this.state.newPassword,
-        };
-        axios.post("admin/updateAccountPassword", data).then((res) => {
-            console.log(res);
-            console.log(res.data);
+    handleChange = (e, { name, value }) => this.setState({ [name]: value });
+
+    resetState() {
+        this.setState({
+            currentPassword: "",
+            newPassword: "",
+            confirmNewPassword: "",
+            error: {
+                currentPassword: false,
+                newPassword: false,
+                confirmNewPassword: false,
+            },
         });
-        this.handleClose();
-        setTimeout(() => {
+    }
+
+    handleValidation = (event) => {
+        event.preventDefault();
+        let currentPassword = this.state.currentPassword.trim();
+        let error = {
+            currentPassword: false,
+            newPassword: false,
+            confirmNewPassword: false,
+        };
+        let formIsValid = true;
+
+        if (currentPassword === "") {
+            error["currentPassword"] = true;
             toast({
-                type: "success",
-                title: "Success",
-                description: <p>"Password successfully reset"</p>,
-                icon: "check",
+                type: "error",
+                title: "Error",
+                description: <p>Please input your current password</p>,
+                icon: "cancel",
             });
-        }, 1000);
+            formIsValid = false;
+            this.setState({ error: error });
+            this.handleNewPasswordValidation();
+        } else {
+            let data = {
+                newPassword: currentPassword,
+            };
+            axios
+                .post("admin/checkCurrentSecretaryPassword", data)
+                .then((response) => {
+                    if (response.data === false) {
+                        error["currentPassword"] = true;
+                        toast({
+                            type: "error",
+                            title: "Error",
+                            description: <p>Incorrect current password</p>,
+                            icon: "cancel",
+                        });
+                        this.setState({ error: error });
+                        this.handleNewPasswordValidation();
+                        return false;
+                    } else {
+                        if (this.handleNewPasswordValidation()) {
+                            const data = {
+                                username: "secretary",
+                                newPassword: this.state.newPassword,
+                            };
+                            axios
+                                .post("admin/updateAccountPassword", data)
+                                .then((res) => {
+                                    this.handleClose();
+                                    this.resetState();
+                                    setTimeout(() => {
+                                        toast({
+                                            type: "success",
+                                            title: "Success",
+                                            description: (
+                                                <p>
+                                                    Password successfully reset
+                                                </p>
+                                            ),
+                                            icon: "check",
+                                        });
+                                    }, 1000);
+                                });
+                        }
+                    }
+                });
+        }
     };
 
-    handleChange = (e, { name, value }) => this.setState({ [name]: value });
+    handleNewPasswordValidation() {
+        const checkPassword = /^[0-9a-zA-Z]+$/;
+        let newPassword = this.state.newPassword.trim();
+        let confirmNewPassword = this.state.confirmNewPassword.trim();
+        let error = this.state.error;
+        let formIsValid = true;
+
+        if (newPassword === "") {
+            error["newPassword"] = true;
+            error["confirmNewPassword"] = true;
+            toast({
+                type: "error",
+                title: "Error",
+                description: <p>Please input a valid password</p>,
+                icon: "cancel",
+            });
+            formIsValid = false;
+        } else if (newPassword !== confirmNewPassword) {
+            error["newPassword"] = true;
+            error["confirmNewPassword"] = true;
+            toast({
+                type: "error",
+                title: "Error",
+                description: <p>Passwords do not match</p>,
+                icon: "cancel",
+            });
+            formIsValid = false;
+        } else if (!newPassword.match(checkPassword)) {
+            error["newPassword"] = true;
+            error["confirmNewPassword"] = true;
+            toast({
+                type: "error",
+                title: "Error",
+                description: <p>Incorrect password format</p>,
+                icon: "cancel",
+            });
+            formIsValid = false;
+        } else if (newPassword.length < 10) {
+            error["newPassword"] = true;
+            error["confirmNewPassword"] = true;
+            toast({
+                type: "error",
+                title: "Error",
+                description: <p>Password is too short</p>,
+                icon: "cancel",
+            });
+            formIsValid = false;
+        } else if (newPassword.length > 32) {
+            error["newPassword"] = true;
+            error["confirmNewPassword"] = true;
+            toast({
+                type: "error",
+                title: "Error",
+                description: <p>Password is too long</p>,
+                icon: "cancel",
+            });
+            formIsValid = false;
+        }
+
+        this.setState({ error: error });
+
+        return formIsValid;
+    }
 
     render() {
         let open;
@@ -59,6 +193,11 @@ class AdminResetSecretaryModal extends React.Component {
                 onOpen={() => this.handleOpen()}
                 open={open}
             >
+                <Icon
+                    name="close"
+                    onClick={this.handleClose}
+                    id="close-reset-secretary-modal"
+                ></Icon>
                 <Modal.Header as="h2">
                     <Icon name="edit"></Icon>
                     Edit Secretary Password
@@ -73,8 +212,9 @@ class AdminResetSecretaryModal extends React.Component {
                                 type="password"
                                 id="sec-current-password"
                                 autoComplete="false"
-                                placeholder="Confirm Password"
+                                placeholder="Current Password"
                                 onChange={this.handleChange}
+                                error={this.state.error.currentPassword}
                             />
                         </Form.Field>
                         <Form.Field required id="sec-new-password-field">
@@ -88,6 +228,7 @@ class AdminResetSecretaryModal extends React.Component {
                                         autoComplete="false"
                                         placeholder="New Password"
                                         onChange={this.handleChange}
+                                        error={this.state.error.newPassword}
                                     />
                                 }
                                 content="Password should contain 10 to 32 alphanumeric characters"
@@ -108,6 +249,9 @@ class AdminResetSecretaryModal extends React.Component {
                                         autoComplete="false"
                                         placeholder="Confirm New Password"
                                         onChange={this.handleChange}
+                                        error={
+                                            this.state.error.confirmNewPassword
+                                        }
                                     />
                                 }
                                 content="Password should contain 10 to 32 alphanumeric characters"
@@ -123,7 +267,7 @@ class AdminResetSecretaryModal extends React.Component {
                         labelPosition="left"
                         color="green"
                         id="sec-save-password"
-                        onClick={this.handleSubmit}
+                        onClick={this.handleValidation}
                     >
                         <Icon name="check" />
                         CONFIRM

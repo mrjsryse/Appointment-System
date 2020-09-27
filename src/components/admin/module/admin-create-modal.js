@@ -29,13 +29,17 @@ class AdminCreateModal extends React.Component {
         return (
             <>
                 <Modal
-                    closeIcon
                     size="tiny"
                     id="create-modal"
                     onClose={() => this.handleClose()}
                     onOpen={() => this.handleOpen()}
                     open={open}
                 >
+                    <Icon
+                        name="close"
+                        onClick={this.handleClose}
+                        id="close-create-modal"
+                    ></Icon>
                     <Modal.Header className="center-header" as="h2">
                         What would you like to create?
                     </Modal.Header>

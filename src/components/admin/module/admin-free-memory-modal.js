@@ -8,9 +8,9 @@ class AdminFreeMemoryModal extends React.Component {
 
     handleClose = () => this.props.handleModal("none");
 
-    handleDeleteOld = () =>{
-        axios.post("secretary/deleteXYearsApp").then((res)=>{
-            this.handleClose()
+    handleDeleteOld = () => {
+        axios.post("secretary/deleteXYearsApp").then((res) => {
+            this.handleClose();
             setTimeout(() => {
                 toast({
                     type: "success",
@@ -19,8 +19,8 @@ class AdminFreeMemoryModal extends React.Component {
                     icon: "check",
                 });
             }, 1000);
-        })
-    }
+        });
+    };
 
     render() {
         let open;
@@ -42,13 +42,17 @@ class AdminFreeMemoryModal extends React.Component {
         return (
             <>
                 <Modal
-                    closeIcon
                     size="tiny"
                     id="old-modal"
                     onClose={() => this.handleClose()}
                     onOpen={() => this.handleOpen()}
                     open={open}
                 >
+                    <Icon
+                        name="close"
+                        onClick={this.handleClose}
+                        id="close-old-modal"
+                    ></Icon>
                     <Modal.Header as="h2">
                         <Icon name="recycle"></Icon>
                         Free-up Memory

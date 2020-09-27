@@ -40,7 +40,7 @@ export default class SecretaryNavigationbar extends Component{
                 />
             </div>
             <div class="item" id="secretary-date-text-container">
-            <text style={{fontSize:20+'px'}} id="secretary-date-text">{formattedDate}</text>
+            <span style={{fontSize:20+'px'}} id="secretary-date-text">{formattedDate}</span>
             </div>
             <div class="right borderless menu" id="secretary-rightside">
                 <div class="item" id="secretary-dropdown-view-container">
@@ -49,21 +49,22 @@ export default class SecretaryNavigationbar extends Component{
                         name="view"
                         options={this.props.viewer} 
                         onChange={this.props.onChangeView}
-                        defaultValue={this.props.viewer}
+                        // defaultValue={this.props.viewer}
                         id="secretary-dropdown-view"
                         >
                     </Dropdown>
                 </div>
                 <div class="item" id="secretary-dropdown-filter-container">
-                    <Dropdown placeholder="Filter" name="date" id="secretary-dropdown-filter">
-                        <Dropdown.Menu>
-                            <Dropdown.Item id="secretary-dropdown-filter-appointment">APPOINTMENTS</Dropdown.Item>
-                            <Dropdown.Item id="secretary-dropdown-filter-availability">AVAILABILITY</Dropdown.Item>
-                            <Dropdown.Item id="secretary-dropdown-filter-doctors">
-                                <Dropdown placeholder="DOCTORS" options={this.props.doctors}>
-                                </Dropdown>
-                            </Dropdown.Item>
-                        </Dropdown.Menu>
+                    <Dropdown
+                        selection
+                        placeholder="filter"
+                        id="secretary-dropdown-filter"
+                        defaultValue={this.props.filter}
+                        options={this.props.filters}
+                        onChange={this.props.onChangeFilter}
+                        name="filter"
+                    >
+
                     </Dropdown>
                 </div>
                 <div class="item" id="secretary-info-container">

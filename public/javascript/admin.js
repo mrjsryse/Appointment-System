@@ -1258,6 +1258,8 @@ $("#add-unavailable-button").click(() => {
     $("#end-date-input").val("");
     var done = true;
 
+    console.log(start);
+    console.log(end);
     // ERROR CHECKING
 
     //if both start and end dates are empty
@@ -1305,8 +1307,8 @@ $("#add-unavailable-button").click(() => {
                                 doctorID: $("#add-unavailable-modal").data(
                                     "id"
                                 ),
-                                startdate: start,
-                                enddate: end,
+                                startDate: start,
+                                endDate: end,
                             },
                             success: (value) => {
                                 $("body").toast({
@@ -1399,7 +1401,7 @@ $("#add-schedule-button").click(() => {
                     $("#start-add-field").addClass("error");
                     $("#end-add-field").addClass("error");
                 }
-                if ($("#start-add").val() == $("#end").val()){
+                if ($("#start-add").val() == $("#end").val()) {
                     $("#start-add-field").addClass("error");
                     $("#end-field").addClass("error");
                 }
@@ -1546,7 +1548,7 @@ $("#save-changes-schedule").click(() => {
             if (
                 $("#edit-start").val() == $("#edit-end").val() ||
                 $("#edit-start-add").val() == $("#edit-end-add").val() ||
-                $("#edit-end").val() ==  $("#edit-start-add").val()
+                $("#edit-end").val() == $("#edit-start-add").val()
             ) {
                 if ($("#edit-start").val() == $("#edit-end").val()) {
                     $("#edit-start-field").addClass("error");
@@ -1556,7 +1558,7 @@ $("#save-changes-schedule").click(() => {
                     $("#edit-start-add-field").addClass("error");
                     $("#edit-end-add-field").addClass("error");
                 }
-                if($("#edit-end").val() ==  $("#edit-start-add").val()){
+                if ($("#edit-end").val() == $("#edit-start-add").val()) {
                     $("#edit-start-add-field").addClass("error");
                     $("#edit-end-field").addClass("error");
                 }

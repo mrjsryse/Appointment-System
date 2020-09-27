@@ -76,6 +76,7 @@ class addProcMainForm extends Component {
                                 handleTime={handleTime}
                                 handleDoctorChange={handleDoctorChange}
                                 handleProcessChange={handleProcessChange}
+                                values = {values}
                             />
                         </div> 
                     )

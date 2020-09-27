@@ -7,9 +7,9 @@
  */
 import React, {Component, useState} from 'react';
 import moment from 'moment';
-import { Button, Header, Image, Modal, Form, Dropdown, Step, TextArea } from 'semantic-ui-react'
+import { Input, Form, Popup, Dropdown} from 'semantic-ui-react'
 import axios from 'axios'
-import _ from 'lodash'
+
 
 class addProcStep2 extends Component {
 
@@ -20,7 +20,7 @@ class addProcStep2 extends Component {
             procedure:'',
             procedures:[],
             doctors:[],
-            doctor:'',
+            doctor:[],
             value:[],
             multiple: true
         }
@@ -67,42 +67,90 @@ class addProcStep2 extends Component {
                 }
             })
 
+
     }
 
     
     render(){
         const {values, handleChange, handleDoctorChange, handleProcessChange} = this.props
+
+        if(values.doctor.length != 0){
+            const doctor = [values.doctor]
         return(
-            <Form>
-                <Form.Input required
-                    placeholder='First Name'
-                    onChange = {handleChange('firstname')}
-                    label="First Name"
-                    name="firstname"
-                    id= "processFirstName"
-                />
-                <Form.Input required
-                    placeholder='Last Name'
-                    onChange = {handleChange('lastname')}
-                    label="Last Name"
-                    name="lastname"
-                    id= "processLastName"
-                />
-                <Form.Input required
-                    placeholder='Contact Number'
-                    onChange = {handleChange('patientcontact')}
-                    label="Contact Number"
-                    name="patientcontact"
-                    id= "processPatientContact"
-                />
-                <Form.Dropdown
-                    placeholder='Procedure/s'
-                    onChange={handleProcessChange}
-                    options={this.state.procedures}
-                    selection fluid multiple
-                    id= "processDropProc">
-                    
-                </Form.Dropdown>
+            <>
+                <Form.Field required id="firstname-field-secretary">
+                    <label>First Name</label>
+                    <Popup
+                        trigger={
+                            <Input
+                            error={values.error.firstname}
+                            onChange = {handleChange('firstname')}
+                            placeholder="First Name"
+                            autoComplete="false"
+                            name="firstname"
+                            id= "processFirstName"
+                            />  
+                        }
+                        content="Name should contain at least 2 characters"
+                        position="right center"
+                    />
+                </Form.Field>
+
+                <Form.Field required id="lastname-field-secretary">
+                    <label>Last Name</label>
+                    <Popup
+                        trigger={
+                            <Input
+                            error={values.error.lastname}
+                            onChange = {handleChange('lastname')}
+                            placeholder="Last Name"
+                            autoComplete="false"
+                            name="lastname"
+                            id= "processLasttName"
+                            />  
+                        }
+                        content="Name should contain at least 2 characters"
+                        position="right center"
+                    />
+                </Form.Field>
+
+                <Form.Field required id="patientcontact-field-secretary">
+                    <label>Contact Number</label>
+                    <Popup
+                        trigger={
+                            <Input
+                            error={values.error.lastname}
+                            onChange = {handleChange('patientcontact')}
+                            placeholder="Contact Number"
+                            autoComplete="false"
+                            name="patientcontact"
+                            id= "processPatientContact"
+                            />  
+                        }
+                        content="Contact Number should be valid"
+                        position="right center"
+                    />
+                </Form.Field>
+
+                <Form.Field required id="procedures-field-secretary">
+                    <label>Procedure/s</label>
+                    <Popup
+                        trigger={
+                            <Dropdown
+                            error={values.error.procedures}
+                            onChange={handleProcessChange}
+                            placeholder='Procedure/s'
+                            autoComplete="false"
+                            options={this.state.procedures}
+                            selection fluid multiple
+                            id= "processDropProc"
+                            />  
+                        }
+                        content="Must have at least 1 procedure"
+                        position="right center"
+                    />
+                </Form.Field>
+                
                 <Form.TextArea required
                     placeholder='Notes'
                     onChange = {handleChange('notes')}
@@ -110,17 +158,139 @@ class addProcStep2 extends Component {
                     name="notes"
                     id= "processNotes"
                 />
-                <Form.Dropdown
-                    placeholder='Doctor/s'
-                    onChange={handleDoctorChange}
-                    options={this.state.doctors}
-                    selection fluid multiple
-                    id= "processDropDoctor">
-                </Form.Dropdown>
+
+                <Form.Field required id="doctors-field-secretary">
+                    <label>Doctor/s</label>
+                    <Popup
+                        trigger={
+                            <Dropdown
+                            error={values.error.doctors}
+                            onChange={handleDoctorChange}
+                            placeholder='Doctor/s'
+                            autoComplete="false"
+                            options={this.state.doctors}
+                            selection fluid multiple
+                            id= "processDropDoctor"
+                            defaultValue={doctor}
+                            />  
+                        }
+                        content="Must have at least 1 doctor"
+                        position="right center"
+                    />
+                </Form.Field>
 
                 
-            </Form>
+            </>
         )
+        }
+        else{
+            return(
+                <>
+                    <Form.Field required id="firstname-field-secretary">
+                        <label>First Name</label>
+                        <Popup
+                            trigger={
+                                <Input
+                                error={values.error.firstname}
+                                onChange = {handleChange('firstname')}
+                                placeholder="First Name"
+                                autoComplete="false"
+                                name="firstname"
+                                id= "processFirstName"
+                                />  
+                            }
+                            content="Name should contain at least 2 characters"
+                            position="right center"
+                        />
+                    </Form.Field>
+    
+                    <Form.Field required id="lastname-field-secretary">
+                        <label>Last Name</label>
+                        <Popup
+                            trigger={
+                                <Input
+                                error={values.error.lastname}
+                                onChange = {handleChange('lastname')}
+                                placeholder="Last Name"
+                                autoComplete="false"
+                                name="lastname"
+                                id= "processLasttName"
+                                />  
+                            }
+                            content="Name should contain at least 2 characters"
+                            position="right center"
+                        />
+                    </Form.Field>
+    
+                    <Form.Field required id="patientcontact-field-secretary">
+                        <label>Contact Number</label>
+                        <Popup
+                            trigger={
+                                <Input
+                                error={values.error.lastname}
+                                onChange = {handleChange('patientcontact')}
+                                placeholder="Contact Number"
+                                autoComplete="false"
+                                name="patientcontact"
+                                id= "processPatientContact"
+                                />  
+                            }
+                            content="Contact Number should be valid"
+                            position="right center"
+                        />
+                    </Form.Field>
+    
+                    <Form.Field required id="procedures-field-secretary">
+                        <label>Procedure/s</label>
+                        <Popup
+                            trigger={
+                                <Dropdown
+                                error={values.error.procedures}
+                                onChange={handleProcessChange}
+                                placeholder='Procedure/s'
+                                autoComplete="false"
+                                options={this.state.procedures}
+                                selection fluid multiple
+                                id= "processDropProc"
+                                />  
+                            }
+                            content="Must have at least 1 procedure"
+                            position="right center"
+                        />
+                    </Form.Field>
+                    
+                    <Form.TextArea required
+                        placeholder='Notes'
+                        onChange = {handleChange('notes')}
+                        label="notes"
+                        name="notes"
+                        id= "processNotes"
+                    />
+    
+                    <Form.Field required id="doctors-field-secretary">
+                        <label>Doctor/s</label>
+                        <Popup
+                            trigger={
+                                <Dropdown
+                                error={values.error.doctors}
+                                onChange={handleDoctorChange}
+                                placeholder='Doctor/s'
+                                autoComplete="false"
+                                options={this.state.doctors}
+                                selection fluid multiple
+                                id= "processDropDoctor"
+                                />  
+                            }
+                            content="Must have at least 1 doctor"
+                            position="right center"
+                        />
+                    </Form.Field>
+    
+                    
+                </>
+            )
+        }
+        
     }
 }
 export default addProcStep2

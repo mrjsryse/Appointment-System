@@ -91,7 +91,15 @@ export default class SecretaryHeader extends Component{
         let newDate=Date.parse(this.state.today)
         let formatted =moment(newDate).format("MMMM D, YYYY")
 
-        newArray.push(<Table.Cell id='secretary-add-appointment'><AddAppointment></AddAppointment></Table.Cell>)
+        newArray.push(<Table.Cell id='secretary-add-appointment'>
+                            <AddAppointment
+                                handleWeekAppointmentUpdate={this.props.handleWeekAppointmentUpdate}
+                                handleDayAppointmentUpdate={this.props.handleDayAppointmentUpdate}
+                                handleWeekAvailable={this.props.handleWeekAvailable}
+                            >
+                                
+                            </AddAppointment>
+                        </Table.Cell>)
         for(let i =0; i < this.state.days.length; i++){
             if(this.state.days[i] == formatted){
                 newArray.push(<Table.Cell id="sec-header-child" onClick={()=>this.props.onChangeDate(this.state.weekUnparsed[i])} style={{backgroundColor}}>{this.state.days[i]}</Table.Cell>)

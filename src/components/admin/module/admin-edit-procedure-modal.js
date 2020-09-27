@@ -13,11 +13,23 @@ class AdminEditProcedureModal extends React.Component {
 
     handleOpen = () => this.props.handleModal("admin-edit-procedure");
 
-    handleClose = () => this.props.handleModal("none");
+    handleClose = () => {
+        this.resetState();
+        this.props.handleModal("none");
+    };
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
     handleUpdateTable = () => this.props.handleUpdateTable();
+
+    resetState() {
+        this.setState({
+            procedure: "",
+            error: {
+                procedure: false,
+            },
+        });
+    }
 
     handleSubmit = (event, { datakey }) => {
         event.preventDefault();
@@ -29,6 +41,7 @@ class AdminEditProcedureModal extends React.Component {
             axios.post("admin/editProcess", data).then((res) => {
                 if (res.data.message === true) {
                     this.handleClose();
+                    this.resetState();
                     setTimeout(() => {
                         toast({
                             type: "success",
@@ -54,7 +67,9 @@ class AdminEditProcedureModal extends React.Component {
     handleValidation() {
         const check = /^[a-z A-Z]+$/; // regex for invalid characters
         let procedure = this.state.procedure.trim();
-        let error = this.state.error;
+        let error = {
+            procedure: false,
+        };
         let formIsValid = true;
         if (procedure === "" || !procedure.match(check)) {
             error["procedure"] = true;
@@ -88,13 +103,17 @@ class AdminEditProcedureModal extends React.Component {
 
         return (
             <Modal
-                closeIcon
                 size="mini"
                 id="edit-procedure-modal"
                 onClose={() => this.handleClose()}
                 onOpen={() => this.handleOpen()}
                 open={open}
             >
+                <Icon
+                    name="close"
+                    onClick={this.handleClose}
+                    id="close-edit-procedure-modal"
+                ></Icon>
                 <Modal.Header as="h2">
                     <Icon name="edit"></Icon>
                     Edit Procedure

@@ -17,14 +17,12 @@ class AdminDeleteProcedureModal extends React.Component {
         };
         axios.post("admin/deleteProcess", data).then((res) => {
             this.handleClose();
-            setTimeout(() => {
-                toast({
-                    type: "success",
-                    title: "Success",
-                    description: <p>Procedure successfully deleted</p>,
-                    icon: "check",
-                });
-            }, 1000);
+            toast({
+                type: "success",
+                title: "Success",
+                description: <p>Procedure successfully deleted</p>,
+                icon: "check",
+            });
             this.handleUpdateTable();
         });
     };
@@ -47,13 +45,17 @@ class AdminDeleteProcedureModal extends React.Component {
 
         return (
             <Modal
-                closeIcon
                 size="mini"
                 id="delete-procedure-modal"
                 onClose={() => this.handleClose()}
                 onOpen={() => this.handleOpen()}
                 open={open}
             >
+                <Icon
+                    name="close"
+                    onClick={this.handleClose}
+                    id="close-delete-procedure-modal"
+                ></Icon>
                 <Modal.Header as="h2">
                     <Icon name="trash"></Icon>
                     Delete Procedure

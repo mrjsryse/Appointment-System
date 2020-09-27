@@ -13,7 +13,19 @@ class AdminAddProcedureModal extends React.Component {
 
     handleOpen = () => this.props.handleModal("admin-add-procedure");
 
-    handleClose = () => this.props.handleModal("none");
+    handleClose = () => {
+        this.resetState();
+        this.props.handleModal("none");
+    };
+
+    resetState() {
+        this.setState({
+            procedure: "",
+            error: {
+                procedure: false,
+            },
+        });
+    }
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
@@ -28,6 +40,7 @@ class AdminAddProcedureModal extends React.Component {
             axios.post("admin/addProcess", data).then((res) => {
                 if (res.data.message === true) {
                     this.handleClose();
+                    this.resetState();
                     setTimeout(() => {
                         toast({
                             type: "success",
@@ -54,7 +67,9 @@ class AdminAddProcedureModal extends React.Component {
     handleValidation() {
         const check = /^[a-z A-Z]+$/; // regex for invalid characters
         let procedure = this.state.procedure.trim();
-        let error = this.state.error;
+        let error = {
+            procedure: false,
+        };
         let formIsValid = true;
         if (procedure === "" || !procedure.match(check)) {
             error["procedure"] = true;
@@ -81,13 +96,17 @@ class AdminAddProcedureModal extends React.Component {
 
         return (
             <Modal
-                closeIcon
                 size="mini"
                 id="procedure-modal"
                 onClose={() => this.handleClose()}
                 onOpen={() => this.handleOpen()}
                 open={open}
             >
+                <Icon
+                    name="close"
+                    onClick={this.handleClose}
+                    id="close-procedure-modal"
+                ></Icon>
                 <Modal.Header as="h2">
                     <Icon name="clipboard"></Icon>
                     New Procedure

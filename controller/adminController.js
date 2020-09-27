@@ -279,7 +279,7 @@ router.post("/editDentist", async (req, res) => {
 // ALLOWS UPDATING IF THE DOCTOR IS CURRENTLY AVAILABLE OR NOT
 router.post("/updateDentistStatus", async (req, res) => {
     Doctor.updateDoctorStatus(req.body.doctorID, req.body.status);
-    res.send(true)
+    res.send(true);
 });
 
 // ADD PROCESS; This probably refers to an appointment
@@ -571,6 +571,25 @@ router.post("/getSchedule", urlencoder, async (req, res) => {
         data: sendData,
     });
 });
+router.post("/getDentistSchedule", urlencoder, async (req, res) => {
+    let doctorID = req.body.doctorID;
+    let doctor = await Doctor.getDoctorByID(doctorID);
+    let docSched = await Schedule.getScheduleByID(doctor.schedule);
+    let breaktime = await BreakTime.getBreakTimeByID(doctor.breakTime);
+
+    let array = [],
+        docID;
+    if (docSched != undefined) {
+        array = getObject(docSched, breaktime);
+        docID = docSched._id;
+    } else {
+        docID = "";
+    }
+    res.send({
+        sched: array,
+        schedID: docID,
+    });
+});
 
 //pushes an empty sched? *** to be checked ***
 function getObject(object, breakTime) {
@@ -660,8 +679,8 @@ function getObject(object, breakTime) {
 //Adds the dates that a doctor is unavailable
 router.post("/addUnavailableDates", urlencoder, async (req, res) => {
     let doctorID = req.body.doctorID;
-    let startDate = req.body.startdate;
-    let endDate = req.body.enddate;
+    let startDate = req.body.startDate;
+    let endDate = req.body.endDate;
 
     let startnewDate = Date.parse(startDate);
     let startformattedDate = moment(startnewDate).format("YYYY-MM-DD");
@@ -673,9 +692,9 @@ router.post("/addUnavailableDates", urlencoder, async (req, res) => {
     );
 
     let unavailableDate = new UnavailableDate({
-        momentDate1: req.body.startdate,
+        momentDate1: req.body.startDate,
         stringDate1: startformattedDate,
-        momentDate2: req.body.enddate,
+        momentDate2: req.body.endDate,
         stringDate2: endformattedDate,
         doctor: doctorID,
     });
@@ -744,6 +763,16 @@ router.post("/getUnavailableDates", urlencoder, async (req, res) => {
     res.send({
         htmlData: table,
         data: sendData,
+    });
+});
+
+//gets the unavailable dates of a doctor to show in the website
+router.post("/getAllUnavailableDates", urlencoder, async (req, res) => {
+    let doctorID = req.body.doctorID;
+    let data = await UnavailableDate.getDoctorUnavailableDates(doctorID);
+
+    res.send({
+        sched: modifyArray(data),
     });
 });
 

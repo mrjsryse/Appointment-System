@@ -12,72 +12,40 @@ class week_all extends Component{
         super(props);
 
         this.state={
-            appointments:[],
-            currNumOfApp: 0,
-            prevNumOfApp: 0,
+            appointments:this.props.appointments,
             weeks: this.props.week,
         }
 
     }
     
 
-    componentDidMount(){
-       const week = {
-           weeks: this.state.weeks
-       }
-        Axios.post('http://localhost:3000/secretary/week_all', week).then(res =>{
-            return this.setState({
-                appointments: res.data.data.data
-            })
+    // componentDidMount(){
+    //    const week = {
+    //        weeks: this.state.weeks
+    //    }
+    //     Axios.post('http://localhost:3000/secretary/week_all', week).then(res =>{
+    //         return this.setState({
+    //             appointments: res.data.data.data
+    //         })
             
-        })
+    //     })
         
-    }
-
-    appointmentlist=()=>{
-        
-        console.log(this.state.appointments);
-        
-        return this.state.appointments.map(({slot, weekAppointments}, index)=>{
-            return(
-            <Table.Row key={index}>
-                <Table.Cell id="week-all-time-cell">{slot}</Table.Cell>
-                {   
-                    weekAppointments.map(({appointments})=>{
-                        return( <Table.Cell id='week-all-table-cell'>
-                                        {
-                                           appointments.map((appointment)=>
-                                                        <AppointmentCard id="secretary-appointment-card"
-                                                            appointment={appointment}
-                                                        />
-                                            )
-                                        }
-
-                            </Table.Cell>)
-                  })
-                }
-            </Table.Row>
-            )
-        })
-        
-    }
+    // }
 
     componentDidUpdate(){
         if(this.props.week != this.state.weeks){
-            const week = {
+            console.log("Hello")
+            this.props.handleWeekAppointmentUpdate()
+            this.setState({
                 weeks: this.props.week
-            }
-             Axios.post('http://localhost:3000/secretary/week_all', week).then(res =>{
-                 return this.setState({
-                     appointments: res.data.data.data,
-                     weeks: this.props.week
-                 })
-                 
-             })
+            })
         }
     }
     render(){
-
+        console.log("prop: ")
+        console.log(this.props.week)
+        console.log("state: ")
+        console.log(this.state.weeks)
        return(
             <>
                 <Table id="table-header-title" compact>
@@ -89,8 +57,30 @@ class week_all extends Component{
                 </Table>
                 <Table id='week_all' celled fixed textAlign='center' compact>
                     <Table.Body>
-                    
-                            {this.appointmentlist()}
+                    {
+                        this.props.appointments.map(({slot, weekAppointments}, index)=>{
+                            return(
+                            <Table.Row key={index} name={'week-all-row-'+index}>
+                                <Table.Cell id="week-all-time-cell">{slot}</Table.Cell>
+                                {   
+                                    weekAppointments.map(({appointments}, index)=>{
+                                        return( <Table.Cell id={'week-all-table-cell'} name={'week-all-td-'+index}>
+                                                        {
+                                                           appointments.map((appointment)=>
+                                                                        <AppointmentCard id={"secretary-appointment-card-" + appointment._id}
+                                                                            appointment={appointment}
+                                                                            handleWeekAppointmentUpdate={this.props.handleWeekAppointmentUpdate}
+                                                                        />
+                                                            )
+                                                        }
+                
+                                            </Table.Cell>)
+                                  })
+                                }
+                            </Table.Row>
+                            )
+                        })
+                    }
                     </Table.Body>
                 </Table>
             </>

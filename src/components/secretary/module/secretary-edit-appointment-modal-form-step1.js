@@ -13,6 +13,7 @@ import DatePicker from 'react-datepicker';
 
 import "react-datepicker/dist/react-datepicker.css"
 import "../secretary_css/addProcStep1.scss"
+import '../secretary_css/secretary-view.css'
 
 class editProcStep1 extends Component {
     constructor(props){
@@ -61,6 +62,7 @@ class editProcStep1 extends Component {
                     <Form.Input required
                     label = 'Date'
                     className = "editProcStep1Date"
+                    id="editProcStep1Date-secretary"
                     control={DatePicker}
                         selected={this.state.date}
                         onChange={this.onchangeDate}
@@ -79,6 +81,7 @@ class editProcStep1 extends Component {
                     <Form.Input required
                         label = "Time"
                         className = "editProcStep1Time"
+                        id="editProcStep1Time-secretary"
                         control={DatePicker}
                             showTimeSelect
                             showTimeSelectOnly
