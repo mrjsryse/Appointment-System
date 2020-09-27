@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const moment = require('moment');
-const fs = require('fs');
+const moment = require("moment");
+const fs = require("fs");
 const bodyparser = require("body-parser");
 const urlencoder = bodyparser.urlencoded({
-    extended: true
+    extended: true,
 });
 
 const { Appointment } = require("../model/appointment");
@@ -20,94 +20,130 @@ router.get("/", async (req, res) => {
     let admin = await Account.getAccountByUsername("admin");
     if (req.session.username == "admin") {
         res.render("page_templates/admin_view.hbs", {
-            password: admin.password
+            password: admin.password,
         });
     } else {
         res.redirect("/login");
     }
-})
+});
 
-// VALIDATION
+// let render_admin = function (username, password, res) {
+//     if (username == "admin") {
+//         res.render("page_templates/admin_view.hbs", {
+//             password: password,
+//         });
+//     } else {
+//         res.redirect("/login");
+//     }
+// };
+
+//VALIDATION
 router.post("/checkCurrentAdminPassword", async (req, res) => {
+
     let admin = await Account.getAccountByUsername("admin");
-    var temp = await Account.authenticate(admin.username, req.body.newPassword, admin.salt);
-    if(temp != null) {
+    var temp = await Account.authenticate(
+        admin.username,
+        req.body.newPassword,
+        admin.salt
+    );
+    if (temp != null) {
         res.send(true);
     } else {
         res.send(false);
     }
-})
+});
 
 // CHECKS IF THE CURRENT PASSWORD IS CORRECT
 // TAKEN FROM THE MODEL ACCOUNT
 router.post("/checkCurrentSecretaryPassword", async (req, res) => {
     let user = await Account.getAccountByUsername("secretary");
-    var temp = await Account.authenticate(user.username, req.body.newPassword, user.salt);
-    if(temp != null) {
+    var temp = await Account.authenticate(
+        user.username,
+        req.body.newPassword,
+        user.salt
+    );
+    if (temp != null) {
         res.send(true);
     } else {
         res.send(false);
     }
-})
+});
 
-// CHECKS IF THE USERNAME INPUT IS IN THE DATABASE  
+// CHECKS IF THE USERNAME INPUT IS IN THE DATABASE
 router.post("/validateUsername", async (req, res) => {
     let account = await Account.getAccountByUsername(req.body.username);
+    console.log(req.body.username);
     if (account == undefined) {
         res.send({ message: false });
     } else {
         res.send({ message: true });
     }
-})
+});
+
+var check_username = async function (username) {
+    let account = await Account.getAccountByUsername(username);
+    if (account == undefined) {
+        return false;
+    } else {
+        return true;
+    }
+};
 
 // ALL ACCOUNT SETTING
 
 // ALLOWS CHANGING OF THE CURRENTLY LOGGED USER'S PASSWORD
 router.post("/updateAccountPassword", async (req, res) => {
-    let account = await Account.getAccountByUsername(req.body.username);
-    if (req.body.username == "admin" || req.body.username == "secretary") {
-        Account.updateAccount(account.id, req.body.newPassword);
-        res.send({ message: true });
-    } else {
-        if (account == undefined) {
-            res.send({ message: false });
-        } else {
-            Account.updateAccount(account.id, req.body.newPassword);
-            res.send({ message: true });
-        }
-    }
-})
+    res.send({
+        
+        message: update_password(req.body.username, req.body.newPassword),
+    });
+});
 
+var update_password = async function (username, newPassword) {
+    let account = await Account.getAccountByUsername(username);
+    if (account == undefined) {
+        return false;
+    } else {
+        Account.updateAccount(account.id, newPassword);
+        return true;
+    }
+};
 
 // ADDS NEW ACCOUNT INTO DATABASE
 router.post("/addAccount", async (req, res) => {
     let user = await Account.getAccountByUsername(req.body.username);
     if (user == undefined) {
-        Account.addAccount(new Account({
-            username: req.body.username,
-            password: req.body.password,
-            accountType: req.body.type
-        }), (value) => {
-            res.send({ message: true });
-        }, (err) => {
-            res.send(err);
-        })
+        Account.addAccount(
+            new Account({
+                username: req.body.username,
+                password: req.body.password,
+                accountType: req.body.type,
+            }),
+            (value) => {
+                res.send({ message: true });
+            },
+            (err) => {
+                res.send(err);
+            }
+        );
     } else {
         res.send({ message: false });
     }
-})
+});
 
 // ALLOWS EDITING OF ACCOUNT
 router.post("/editAccount", (req, res) => {
     Account.updateAccount(req.body.accountID, req.body.accountPassword);
     res.send(true);
-})
+});
 
 // DELETES EVERYTHING RELATED TO A SINGLE USER ACCOUNT (appointments, schedules, etc)
 router.post("/deleteAccount", async (req, res) => {
     let account = await Account.findOne({ doctorID: req.body.doctorID });
     if (account.accountType == "dentist") {
-        let unavailableDate = await UnavailableDate.getDoctorUnavailableDates(account.doctorID);
+        let unavailableDate = await UnavailableDate.getDoctorUnavailableDates(
+            account.doctorID
+        );
         for (var i = 0; i < unavailableDate.length; i++) {
             let unAvID = unavailableDate[i]._id;
             await UnavailableDate.delete(unAvID);
@@ -115,15 +151,17 @@ router.post("/deleteAccount", async (req, res) => {
         let doctor = await Doctor.getDoctorByID(account.doctorID);
         await BreakTime.delete(doctor.breaktime);
         await Schedule.delete(doctor.schedule);
-        await Doctor.delete(account.doctorID); 
-        let appointments = await Appointment.getDoctorAppointment(account.doctorID);
+        await Doctor.delete(account.doctorID);
+        let appointments = await Appointment.getDoctorAppointment(
+            account.doctorID
+        );
         for (var i = 0; i < appointments.length; i++) {
             let appID = appointments[i]._id;
             var ary = appointments[i].doctor;
-            ary.pull(account.doctorID)
-            if(ary.length == 0){
+            ary.pull(account.doctorID);
+            if (ary.length == 0) {
                 await Appointment.delete(appID);
-            }else{
+            } else {
                 let temp = new Appointment({
                     firstname: appointments[i].firstname,
                     lastname: appointments[i].lastname,
@@ -132,110 +170,139 @@ router.post("/deleteAccount", async (req, res) => {
                     notes: appointments[i].notes,
                     time: appointments[i].time,
                     date: appointments[i].date,
-                    doctor: ary
+                    doctor: ary,
                 });
-                await Appointment.updateAppointment(appointments, temp);
+                await Appointment.updateAppointment(appID, temp);
             }
         }
     }
     Account.delete(account._id);
     res.send({ message: true });
-})
+});
 
 // DENTIST SETTING
 router.post("/addDentist", async (req, res) => {
     let user = await Account.getAccountByUsername(req.body.username);
     if (user == undefined) {
-
         //Creates the doctor account and adds to the doctor database
-        Doctor.addDoctor(new Doctor({
-            firstname: req.body.firstname,
-            lastname: req.body.lastname,
-            status: req.body.status,
-            lastLogin: ""
-        }), (value) => {
-            // adds the doctor account to the accounts database as well
-            Account.addAccount(new Account({
-                username: req.body.username,
-                password: req.body.password,
-                accountType: req.body.type,
-                doctorID: value._id
-            }), (val) => {
-                let time = ['8:00', '18:00'];
-                let defaultschedule = new Schedule({
-                    sunday: null,
-                    monday: time,
-                    tuesday: time,
-                    wednesday: time,
-                    thursday: time,
-                    friday: time,
-                    saturday: time
-                })
-                let breaktime = new BreakTime({
-                    monday: [],
-                    tuesday: [],
-                    wednesday: [],
-                    thursday: [],
-                    friday: [],
-                    saturday: []
-                })
-                //adds the break times of the current doctor; adds to doctor and breaktime schedule
-                BreakTime.addBreakTime(breaktime, function (data) {
-                    Doctor.updateDoctorBreakTime(value._id, data._id);
-                }, (error) => {
-                    res.send(error);
-                })
-                //adds the available time of the current doctor; exists in schedule and in doctor database
-                Schedule.addschedule(defaultschedule, function (data) {
-                    Doctor.updateDoctorSchedule(value._id, data._id);
-                }, (error) => {
-                    res.send(error);
-                })
+        Doctor.addDoctor(
+            new Doctor({
+                firstname: req.body.firstname,
+                lastname: req.body.lastname,
+                status: req.body.status,
+                lastLogin: "",
+            }),
+            (value) => {
+                // adds the doctor account to the accounts database as well
+                Account.addAccount(
+                    new Account({
+                        username: req.body.username,
+                        password: req.body.password,
+                        accountType: req.body.type,
+                        doctorID: value._id,
+                    }),
+                    (val) => {
+                        let time = ["8:00", "18:00"];
+                        let defaultschedule = new Schedule({
+                            sunday: null,
+                            monday: time,
+                            tuesday: time,
+                            wednesday: time,
+                            thursday: time,
+                            friday: time,
+                            saturday: time,
+                        });
+                        let breaktime = new BreakTime({
+                            monday: [],
+                            tuesday: [],
+                            wednesday: [],
+                            thursday: [],
+                            friday: [],
+                            saturday: [],
+                        });
+                        //adds the break times of the current doctor; adds to doctor and breaktime schedule
+                        BreakTime.addBreakTime(
+                            breaktime,
+                            function (data) {
+                                Doctor.updateDoctorBreakTime(
+                                    value._id,
+                                    data._id
+                                );
+                            },
+                            (error) => {
+                                res.send(error);
+                            }
+                        );
+                        //adds the available time of the current doctor; exists in schedule and in doctor database
+                        Schedule.addschedule(
+                            defaultschedule,
+                            function (data) {
+                                Doctor.updateDoctorSchedule(
+                                    value._id,
+                                    data._id
+                                );
+                            },
+                            (error) => {
+                                res.send(error);
+                            }
+                        );
 
-                res.send({
-                    message: true,
-                    doctor: value
-                });
-            }, (err) => {
+                        res.send({
+                            message: true,
+                            doctor: value,
+                        });
+                    },
+                    (err) => {
+                        res.send(err);
+                    }
+                );
+            },
+            (err) => {
                 res.send(err);
-            })
-        }, (err) => {
-            res.send(err);
-        })
+            }
+        );
     } else {
         res.send({ message: false });
     }
-})
+});
 
 // ALLOWS EDITING OF THE DOCTOR'S ACCOUNT (only for name and password **to be confirmed**)
 router.post("/editDentist", async (req, res) => {
     let account = await Account.findOne({ doctorID: req.body.doctorID });
-    
+
     Account.updateAccount(account.id, req.body.password);
-    Doctor.updateDoctor(account.doctorID, req.body.firstname, req.body.lastname);
+    Doctor.updateDoctor(
+        account.doctorID,
+        req.body.firstname,
+        req.body.lastname
+    );
     res.send(true);
-})
+});
 
 // ALLOWS UPDATING IF THE DOCTOR IS CURRENTLY AVAILABLE OR NOT
 router.post("/updateDentistStatus", async (req, res) => {
     Doctor.updateDoctorStatus(req.body.doctorID, req.body.status);
-})
+    res.send(true);
+});
 
 // ADD PROCESS; This probably refers to an appointment
 router.post("/addProcess", async (req, res) => {
     let process = await Process.findOne({
-        processname: req.body.name
+        processname: req.body.name,
     });
     if (process == undefined) {
-        Process.addProcess(new Process({
-            processname: req.body.name
-        }), (value) => {
-            res.send({ message: true });
-        })
+        Process.addProcess(
+            new Process({
+                processname: req.body.name,
+            }),
+            (value) => {
+                res.send({ message: true });
+            }
+        );
     } else {
         res.send({ message: false });
     }
-})
+});
 
 //Allows them to edit a currently existing process/appointment
 router.post("/editProcess", async (req, res) => {
@@ -246,34 +313,34 @@ router.post("/editProcess", async (req, res) => {
     } else {
         res.send({ message: false });
     }
-})
+});
 //Deletes an existing appointment
 router.post("/deleteProcess", async (req, res) => {
-    let processID = req.body.processID;
+    let processID = req.body.procedureID;
     let apps = await Appointment.getAll();
-        for (var i = 0; i < apps.length; i++) {
-            let appID = apps[i]._id;
-            var ary = apps[i].process;
-            ary.pull(processID)
-            if(ary.length == 0){
-                await Appointment.delete(appID);
-            }else{
-                let temp = new Appointment({
-                    firstname: apps[i].firstname,
-                    lastname: apps[i].lastname,
-                    patientcontact: apps[i].patientcontact,
-                    process: ary,
-                    notes: apps[i].notes,
-                    time: apps[i].time,
-                    date: apps[i].date,
-                    doctor: apps[i].doctor
-                });
-                await Appointment.updateAppointment(apps, temp);
-            }
+    for (var i = 0; i < apps.length; i++) {
+        let appID = apps[i]._id;
+        var ary = apps[i].process;
+        ary.pull(processID);
+        if (ary.length == 0) {
+            await Appointment.delete(appID);
+        } else {
+            let temp = new Appointment({
+                firstname: apps[i].firstname,
+                lastname: apps[i].lastname,
+                patientcontact: apps[i].patientcontact,
+                process: ary,
+                notes: apps[i].notes,
+                time: apps[i].time,
+                date: apps[i].date,
+                doctor: apps[i].doctor,
+            });
+            await Appointment.updateAppointment(appID, temp);
         }
+    }
     Process.delete(processID);
     res.send({ message: true });
-})
+});
 
 // GET USER BY USERNAME
 router.post("/getUser", async (req, res) => {
@@ -281,9 +348,9 @@ router.post("/getUser", async (req, res) => {
     let doctor = await Doctor.getDoctorByID(req.body.doctorID);
     res.send({
         user,
-        doctor
+        doctor,
     });
-})
+});
 
 // GET SPECIFIC TYPE OF USER
 router.post("/filterUser", async (req, res) => {
@@ -295,50 +362,72 @@ router.post("/filterUser", async (req, res) => {
     } else if (req.body.userType == "dentist") {
         account = await Account.getDentist();
     }
-    let table = fs.readFileSync('./views/module_templates/admin-users-table.hbs', 'utf-8');
+    let table = fs.readFileSync(
+        "./views/module_templates/admin-users-table.hbs",
+        "utf-8"
+    );
     let sendData = {
-        user: account
-    }
+        user: account,
+    };
     res.send({
         htmlData: table,
-        data: sendData
-    })
-})
+        data: sendData,
+    });
+});
 
 // LOAD TABLES FOR ALL DENTISTS
 router.get("/adminDentist", urlencoder, async (req, res) => {
     let doctors = await Doctor.getAllDoctors();
-    let table = fs.readFileSync('./views/module_templates/admin-dentist-table.hbs', 'utf-8');
+    let table = fs.readFileSync(
+        "./views/module_templates/admin-dentist-table.hbs",
+        "utf-8"
+    );
     let sendData = {
-        dentist: doctors
-    }
+        dentist: doctors,
+    };
     res.send({
         htmlData: {
-            table
+            table,
         },
-        data: sendData
-    })
-})
+        data: sendData,
+    });
+});
+
+router.get("/getAllDentists", urlencoder, async (req, res) => {
+    let doctors = await Doctor.getAllDoctors();
+    res.send({
+        dentists: doctors,
+    });
+});
 
 // LOAD TABLES FOR ALL PROCEDURES
 router.get("/adminProcedure", urlencoder, async (req, res) => {
     let processes = await Process.getAllProcesses();
-    let table = fs.readFileSync('./views/module_templates/admin-procedure-table.hbs', 'utf-8');
+    let table = fs.readFileSync(
+        "./views/module_templates/admin-procedure-table.hbs",
+        "utf-8"
+    );
     let sendData = {
-        procedure: processes
-    }
+        procedure: processes,
+    };
     res.send({
         htmlData: {
-            table
+            table,
         },
-        data: sendData
-    })
-})
+        data: sendData,
+    });
+});
+
+router.get("/getAllProcedures", urlencoder, async (req, res) => {
+    let processes = await Process.getAllProcesses();
+    res.send({
+        procedures: processes,
+    });
+});
 
 // DENTIST SCHEDULE SETTING
 // Let's the admin add a schedule to an existing doctor
 router.post("/addSchedule", urlencoder, async (req, res) => {
-
     let doctorID = req.body.doctorID;
     let doctor = await Doctor.getDoctorByID(doctorID);
     let defaultschedule;
@@ -349,7 +438,7 @@ router.post("/addSchedule", urlencoder, async (req, res) => {
     let fridayBreak = [];
     let saturdayBreak = [];
 
-    if (req.body.defaultTime == 'false') {
+    if (req.body.defaultTime == "false") {
         let monday, tuesday, wednesday, thursday, friday, saturday;
 
         monday = req.body["monday[]"]; // whole bracket
@@ -372,33 +461,29 @@ router.post("/addSchedule", urlencoder, async (req, res) => {
             wednesday,
             thursday,
             friday,
-            saturday
-        })
-        
+            saturday,
+        });
+
         let breaktime = new BreakTime({
             monday: mondayBreak,
             tuesday: tuesdayBreak,
             wednesday: wednesdayBreak,
             thursday: thursdayBreak,
             friday: fridayBreak,
-            saturday: saturdayBreak
-        })
+            saturday: saturdayBreak,
+        });
 
         BreakTime.updateBreakTime(doctor.breakTime, breaktime);
 
         Schedule.updateSchedule(doctor.schedule, defaultschedule);
-
     }
 
-
     res.send(true);
-})
+});
 // allows admin to edit an existing doctor's schedule
 router.post("/editSchedule", urlencoder, async (req, res) => {
-
     let doctorID = req.body.doctorID;
     let doctor = await Doctor.getDoctorByID(doctorID);
-
 
     let mondayBreak = [];
     let tuesdayBreak = [];
@@ -429,8 +514,8 @@ router.post("/editSchedule", urlencoder, async (req, res) => {
         wednesday,
         thursday,
         friday,
-        saturday
-    })
+        saturday,
+    });
 
     let breaktime = new BreakTime({
         monday: mondayBreak,
@@ -438,15 +523,15 @@ router.post("/editSchedule", urlencoder, async (req, res) => {
         wednesday: wednesdayBreak,
         thursday: thursdayBreak,
         friday: fridayBreak,
-        saturday: saturdayBreak
-    })
+        saturday: saturdayBreak,
+    });
 
     BreakTime.updateBreakTime(doctor.breakTime, breaktime);
 
     Schedule.updateSchedule(doctor.schedule, schedule);
 
     res.send(true);
-})
+});
 
 // Allows admin to get the schedule of a specific doctor
 router.post("/getDoctorSchedule", async (req, res) => {
@@ -456,9 +541,9 @@ router.post("/getDoctorSchedule", async (req, res) => {
 
     res.send({
         docSched: schedule,
-        breakTime
-    })
-})
+        breakTime,
+    });
+});
 
 // *** TO BE CHECKED ***
 router.post("/getSchedule", urlencoder, async (req, res) => {
@@ -466,9 +551,13 @@ router.post("/getSchedule", urlencoder, async (req, res) => {
     let doctor = await Doctor.getDoctorByID(doctorID);
     let docSched = await Schedule.getScheduleByID(doctor.schedule);
     let breaktime = await BreakTime.getBreakTimeByID(doctor.breakTime);
-    let table = fs.readFileSync('./views/module_templates/admin-dentist-schedule.hbs', 'utf-8');
+    let table = fs.readFileSync(
+        "./views/module_templates/admin-dentist-schedule.hbs",
+        "utf-8"
+    );
 
-    let array = [], docID;
+    let array = [],
+        docID;
     if (docSched != undefined) {
         array = getObject(docSched, breaktime);
         docID = docSched._id;
@@ -478,13 +567,32 @@ router.post("/getSchedule", urlencoder, async (req, res) => {
 
     let sendData = {
         sched: array,
-        schedID: docID
-    }
+        schedID: docID,
+    };
     res.send({
         htmlData: table,
         data: sendData,
-    })
-})
+    });
+});
+router.post("/getDentistSchedule", urlencoder, async (req, res) => {
+    let doctorID = req.body.doctorID;
+    let doctor = await Doctor.getDoctorByID(doctorID);
+    let docSched = await Schedule.getScheduleByID(doctor.schedule);
+    let breaktime = await BreakTime.getBreakTimeByID(doctor.breakTime);
+
+    let array = [],
+        docID;
+    if (docSched != undefined) {
+        array = getObject(docSched, breaktime);
+        docID = docSched._id;
+    } else {
+        docID = "";
+    }
+    res.send({
+        sched: array,
+        schedID: docID,
+    });
+});
 
 //pushes an empty sched? *** to be checked ***
 function getObject(object, breakTime) {
@@ -503,30 +611,42 @@ function getObject(object, breakTime) {
     array.push(breakTime.saturday);
 
     let objectTimeList = [];
-    objectTimeList.push(new Object({
-        name: "Monday",
-        time: []
-    }));
-    objectTimeList.push(new Object({
-        name: "Tuesday",
-        time: []
-    }));
-    objectTimeList.push(new Object({
-        name: "Wednesday",
-        time: []
-    }));
-    objectTimeList.push(new Object({
-        name: "Thursday",
-        time: []
-    }));
-    objectTimeList.push(new Object({
-        name: "Friday",
-        time: []
-    }));
-    objectTimeList.push(new Object({
-        name: "Saturday",
-        time: []
-    }));
+    objectTimeList.push(
+        new Object({
+            name: "Monday",
+            time: [],
+        })
+    );
+    objectTimeList.push(
+        new Object({
+            name: "Tuesday",
+            time: [],
+        })
+    );
+    objectTimeList.push(
+        new Object({
+            name: "Wednesday",
+            time: [],
+        })
+    );
+    objectTimeList.push(
+        new Object({
+            name: "Thursday",
+            time: [],
+        })
+    );
+    objectTimeList.push(
+        new Object({
+            name: "Friday",
+            time: [],
+        })
+    );
+    objectTimeList.push(
+        new Object({
+            name: "Saturday",
+            time: [],
+        })
+    );
 
     var ctr = 0;
     while (ctr < array.length) {
@@ -535,23 +655,23 @@ function getObject(object, breakTime) {
             if (array[ctr + 1] == "") {
                 var sc = array[ctr][0] + " - " + array[ctr][1];
                 objectTimeList[Math.floor(ctr / 2)].time.push({
-                    range: sc
-                })
+                    range: sc,
+                });
             } else {
                 var sc1 = array[ctr][0] + " - " + array[ctr + 1][0];
                 objectTimeList[Math.floor(ctr / 2)].time.push({
-                    range: sc1
-                })
+                    range: sc1,
+                });
                 var sc2 = array[ctr + 1][1] + " - " + array[ctr][1];
                 objectTimeList[Math.floor(ctr / 2)].time.push({
-                    range: sc2
-                })
+                    range: sc2,
+                });
             }
         } else {
             if (ctr % 2 == 0) {
                 objectTimeList[Math.floor(ctr / 2)].time.push({
-                    range: "-"
-                })
+                    range: "-",
+                });
             }
         }
         ctr += 2;
@@ -561,75 +681,103 @@ function getObject(object, breakTime) {
 
 //Adds the dates that a doctor is unavailable
 router.post("/addUnavailableDates", urlencoder, async (req, res) => {
-
     let doctorID = req.body.doctorID;
-    let startDate = req.body.startdate;
-    let endDate = req.body.enddate;
+    let startDate = req.body.startDate;
+    let endDate = req.body.endDate;
 
     let startnewDate = Date.parse(startDate);
     let startformattedDate = moment(startnewDate).format("YYYY-MM-DD");
     let endnewDate = Date.parse(endDate);
     let endformattedDate = moment(endnewDate).format("YYYY-MM-DD");
 
-    let doctorUnAvail = await UnavailableDate.getDoctorUnavailableDates(doctorID);
+    let doctorUnAvail = await UnavailableDate.getDoctorUnavailableDates(
+        doctorID
+    );
 
     let unavailableDate = new UnavailableDate({
-        momentDate1: req.body.startdate,
+        momentDate1: req.body.startDate,
         stringDate1: startformattedDate,
-        momentDate2: req.body.enddate,
+        momentDate2: req.body.endDate,
         stringDate2: endformattedDate,
-        doctor: doctorID
-    })
+        doctor: doctorID,
+    });
     //checks if there exists a schedule that the doctor is already unavailable
     if (doctorUnAvail != "") {
         var check = true;
-        for(var k = 0; k < doctorUnAvail.length && check; k++) {
+        for (var k = 0; k < doctorUnAvail.length && check; k++) {
             var start = new Date(doctorUnAvail[k].stringDate1);
             let starttemp = moment(start).format("YYYY-MM-DD");
             var end = new Date(doctorUnAvail[k].stringDate2);
             let endtemp = moment(end).format("YYYY-MM-DD");
-            
+
             //if there exists such a date that is exactly the same, update the sched
-            if(moment(startformattedDate).isBefore(starttemp) && moment(endformattedDate).isAfter(endtemp)) {
-                await UnavailableDate.updateUnavailableDate(doctorUnAvail[k]._id, unavailableDate);
+            if (
+                moment(startformattedDate).isBefore(starttemp) &&
+                moment(endformattedDate).isAfter(endtemp)
+            ) {
+                await UnavailableDate.updateUnavailableDate(
+                    doctorUnAvail[k]._id,
+                    unavailableDate
+                );
                 check = false;
             }
         }
         //if there exists none, add a new unavailable date under the doctor
-        if(check) {
-            await UnavailableDate.addUnavailableDate(unavailableDate, function (val) {
-                res.send(true);
-            }, (error) => {
-                res.send(error);
-            })
+        if (check) {
+            await UnavailableDate.addUnavailableDate(
+                unavailableDate,
+                function (val) {
+                    res.send(true);
+                },
+                (error) => {
+                    res.send(error);
+                }
+            );
         } else {
             res.send(true);
         }
-    //if the unavailable date does not exist yet, let them add
+        //if the unavailable date does not exist yet, let them add
     } else {
-        await UnavailableDate.addUnavailableDate(unavailableDate, function (val) {
-            res.send(true);
-        }, (error) => {
-            res.send(error);
-        })
+        await UnavailableDate.addUnavailableDate(
+            unavailableDate,
+            function (val) {
+                res.send(true);
+            },
+            (error) => {
+                res.send(error);
+            }
+        );
     }
-})
+});
 
 //gets the unavailable dates of a doctor to show in the website
 router.post("/getUnavailableDates", urlencoder, async (req, res) => {
     let doctorID = req.body.doctorID;
     let data = await UnavailableDate.getDoctorUnavailableDates(doctorID);
-    let table = fs.readFileSync('./views/module_templates/admin-dentist-unavailable.hbs', 'utf-8');
+    let table = fs.readFileSync(
+        "./views/module_templates/admin-dentist-unavailable.hbs",
+        "utf-8"
+    );
 
     let sendData = {
-        sched: modifyArray(data)
-    }
+        sched: modifyArray(data),
+    };
 
     res.send({
         htmlData: table,
-        data: sendData
-    })
-})
+        data: sendData,
+    });
+});
+
+//gets the unavailable dates of a doctor to show in the website
+router.post("/getAllUnavailableDates", urlencoder, async (req, res) => {
+    let doctorID = req.body.doctorID;
+    let data = await UnavailableDate.getDoctorUnavailableDates(doctorID);
+
+    res.send({
+        sched: modifyArray(data),
+    });
+});
 
 //removes uneeded data (data to not be shown) and passes data to be shown in the website
 function modifyArray(object) {
@@ -638,13 +786,13 @@ function modifyArray(object) {
         if (object[i].momentDate1 == object[i].momentDate2) {
             objectUnavailable.push({
                 _id: object[i]._id,
-                time: object[i].momentDate1
-            })
+                time: object[i].momentDate1,
+            });
         } else {
             objectUnavailable.push({
                 _id: object[i]._id,
-                time: object[i].momentDate1 + " - " + object[i].momentDate2
-            })
+                time: object[i].momentDate1 + " - " + object[i].momentDate2,
+            });
         }
     }
     return objectUnavailable;
@@ -654,7 +802,7 @@ function modifyArray(object) {
 router.post("/deleteUnavailableDates", urlencoder, async (req, res) => {
     UnavailableDate.delete(req.body.unavailableDateID);
     res.send(true);
-})
+});
 
 //Edits unavailable dates globally (Doctor does not matter); Doctor comes from the object rather than choosing a doctor;
 router.post("/editUnavailableDates", urlencoder, async (req, res) => {
@@ -670,109 +818,133 @@ router.post("/editUnavailableDates", urlencoder, async (req, res) => {
         stringDate1: startformattedDate,
         momentDate2: req.body.enddate,
         stringDate2: endformattedDate,
-        doctor: UnavailableDate.getUnavailableDateByID(unavailableDateID).doctor
-    })
+        doctor: UnavailableDate.getUnavailableDateByID(unavailableDateID)
+            .doctor,
+    });
 
     UnavailableDate.updateUnavailableDate(unavailableDateID, unavailableDate);
-})
+});
 
 //checks if the doctor has an appointment at the current time/date slot
 router.post("/doctorHasAppointment", urlencoder, async (req, res) => {
-
     let doctorID = req.body.doctorID;
     let startdate = req.body.startDate;
-    let enddate = req.body.endDate
+    let enddate = req.body.endDate;
 
     let startnewDate = Date.parse(startdate);
     let startformattedDate = moment(startnewDate).format("MMM D YYYY");
     let endnewDate = Date.parse(enddate);
     let endformattedDate = moment(endnewDate).format("MMM D YYYY");
 
-    let startappointments = await Appointment.getAppByDoctorandDate(doctorID, startformattedDate);
-    let endappointments = await Appointment.getAppByDoctorandDate(doctorID, endformattedDate);
+    let today = new Date();
+    let todayFormatted = moment(today).format("MMM D YYYY");
 
-    if(startappointments == "" || endappointments == ""){
-        res.send(false)
-    } else {
-        res.send(true)
+    if (
+        todayFormatted == startformattedDate ||
+        todayFormatted == endformattedDate
+    ) {
+        res.send(true);
     }
 
-})
+    let startappointments = await Appointment.getAppByDoctorandDate(
+        doctorID,
+        startformattedDate
+    );
+    let endappointments = await Appointment.getAppByDoctorandDate(
+        doctorID,
+        endformattedDate
+    );
+
+    if (startappointments == "" || endappointments == "") {
+        res.send(false);
+    } else {
+        res.send(true);
+    }
+});
 
 // Checks if the doctor is available/Taken during certain dates (this supposedly shows a table)
 router.post("/unavailableTaken", urlencoder, async (req, res) => {
-
     let doctorID = req.body.doctorID;
 
-    let doctorUnAvail = await UnavailableDate.getDoctorUnavailableDates(doctorID);
+    let doctorUnAvail = await UnavailableDate.getDoctorUnavailableDates(
+        doctorID
+    );
     let appointments = await Appointment.getDoctorAppointment(doctorID);
 
-    var dates = []; 
+    var dates = [];
     if (doctorUnAvail != "") {
-        for(var k = 0; k < doctorUnAvail.length; k++){
+        for (var k = 0; k < doctorUnAvail.length; k++) {
             var start = new Date(doctorUnAvail[k].stringDate1);
             let startformattedDate = moment(start).format("YYYY-MM-DD");
             var end = new Date(doctorUnAvail[k].stringDate2);
             let endformattedDate = moment(end).format("YYYY-MM-DD");
 
-            var getDates = function(startDate, endDate) {
+            var getDates = function (startDate, endDate) {
                 var datesget = [];
-                if(dates != ""){
+                if (dates != "") {
                     datesget = dates;
                 }
 
                 var currentDate = startDate,
-                    addDays = function(days) {
+                    addDays = function (days) {
                         var date = new Date(this.valueOf());
                         date.setDate(date.getDate() + days);
                         return date;
                     };
                 while (currentDate <= endDate) {
-                    datesget.push(new Object({
-                        date: currentDate,
-                        message: "Doctor is not available"
-                    }));
+                    datesget.push(
+                        new Object({
+                            date: currentDate,
+                            message: "Doctor is not available",
+                        })
+                    );
                     currentDate = addDays.call(currentDate, 1);
                 }
                 return datesget;
             };
-                
+
             // Usage
-            dates = getDates(new Date(startformattedDate), new Date(endformattedDate));                                                                                                           
-        }  
+            dates = getDates(
+                new Date(startformattedDate),
+                new Date(endformattedDate)
+            );
+        }
     }
     if (appointments != "") {
-        for(var k = 0; k < appointments.length; k++){
+        for (var k = 0; k < appointments.length; k++) {
             var araw = new Date(appointments[k].date);
             let formattedDate = moment(araw).format("YYYY-MM-DD");
 
             var something = dates.filter((value) => {
                 return moment(value).format("YYYY-MM-DD") == formattedDate;
-            })
+            });
 
-            if(something == ""){
-                dates.push(new Object({
-                    date: formattedDate,
-                    message: "Doctor has appointment"
-                }));
+            if (something == "") {
+                dates.push(
+                    new Object({
+                        date: formattedDate,
+                        message: "Doctor has appointment",
+                    })
+                );
             }
         }
-    } 
+    }
 
     res.send(dates);
-})
+});
 
 //exports all the current data included in the db, to a csv file
 router.get("/exportData", async (req, res) => {
     var data = await Appointment.getAll();
-    var csv = "First Name,Last Name,Contact,Procedures,Notes,Date,Time,Doctor\n";
-    for(var i = 0; i < data.length; i++) {
+    var csv =
+        "First Name,Last Name,Contact,Procedures,Notes,Date,Time,Doctor\n";
+    for (var i = 0; i < data.length; i++) {
         var row = data[i];
         csv += row.firstname + ",";
         csv += row.lastname + ",";
         csv += row.patientcontact + ",";
-        for(var j = 0; j < row.process.length; j++) {
-            var proc = await Process.findOne({_id: row.process[j]._id});
+        for (var j = 0; j < row.process.length; j++) {
+            var proc = await Process.findOne({ _id: row.process[j]._id });
             csv += proc.processname + " - ";
         }
         csv = csv.substring(0, csv.length - 3);
@@ -780,9 +952,9 @@ router.get("/exportData", async (req, res) => {
         csv += row.notes + ",";
         csv += row.date + ",";
         csv += row.time + ",";
-        if(row.doctor.length > 0) {
-            for(var k = 0; k < row.doctor.length; k++) {
-                var doc = await Doctor.findOne({_id: row.doctor[k]._id});
+        if (row.doctor.length > 0) {
+            for (var k = 0; k < row.doctor.length; k++) {
+                var doc = await Doctor.findOne({ _id: row.doctor[k]._id });
                 csv += doc.firstname + " " + doc.lastname + " - ";
             }
         }
@@ -791,7 +963,6 @@ router.get("/exportData", async (req, res) => {
         csv += "\n";
     }
     res.send(csv);
-})
-
+});
 
 module.exports = router;

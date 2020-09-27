@@ -1,0 +1,8 @@
+body > .grid {
+    height: 100%;
+  }
+  .ui.modal > .header {
+      backgroundColor: #cc1445 !important;
+      color: white !important;
+  }
+  

@@ -16,17 +16,17 @@
             <td>{{lastLogin}}</td>
             <td class="center aligned">
                 {{#ifEquals status "Active"}}
-                    <button class="ui toggle button active" id="{{_id}}">Active</button>
+                    <button class="ui toggle button active" id="{{firstname}}-{{lastname}}-active" data-id="{{_id}}">Active</button>
                 {{else}}
-                    <button class="ui toggle button" id="{{_id}}">Inactive</button>
+                    <button class="ui toggle button" id="{{firstname}}-{{lastname}}-active" data-id="{{_id}}">Inactive</button>
                 {{/ifEquals}}
             </td>
             <td class="center aligned">
-                <button class="ui green button" data-id="{{_id}}" data-firstname="{{firstname}}" data-lastname="{{lastname}}">View</button>
+                <button class="ui green button" data-id="{{_id}}" data-firstname="{{firstname}}" data-lastname="{{lastname}}" id="{{firstname}}-{{lastname}}-view">View</button>
             </td>
             <td class="right aligned">
-                <i class="large edit icon link" data-id="{{_id}}" data-firstname="{{firstname}}" data-lastname="{{lastname}}" data-name="edit"></i>
-                <i class="large trash icon link" data-id="{{_id}}" data-firstname="{{firstname}}" data-lastname="{{lastname}}" data-name="delete"></i>
+                <i class="large edit icon link" data-id="{{_id}}" data-firstname="{{firstname}}" data-lastname="{{lastname}}" data-name="edit" id="{{firstname}}-{{lastname}}-edit"></i>
+                <i class="large trash icon link" data-id="{{_id}}" data-firstname="{{firstname}}" data-lastname="{{lastname}}" data-name="delete" id="{{firstname}}-{{lastname}}-delete"></i>
             </td>
         </tr>
     {{/each}}

@@ -29,13 +29,13 @@
             CREATE
           </div>
         </div>
-        <a class="item">
+        <a class="item" id="dentistButton">
           <div class="ui left" style=" font-weight: bold">
             <i class="large user md icon" style="color: black; margin-right: 10px"></i>
             Dentist
           </div>
         </a>
-        <a class="item">
+        <a class="item" id="procedureButton">
           <div class="ui left" style=" font-weight: bold">
             <i class="large clipboard icon" style="color: black; margin-right: 10px"></i>
             Procedure
@@ -47,25 +47,25 @@
             Export Data
           </div>
         </a>
-        <a class="item">
+        <a class="item" id="resetAdmin">
           <div class="ui left" style=" font-weight: bold" id="reset-password">
             <i class="large lock icon" style="color: black; margin-right: 10px"></i>
             Reset Admin
           </div>
         </a>
-        <a class="item">
+        <a class="item" id="resetSecretary">
           <div class="ui left" style=" font-weight: bold" id="reset-secretary">
             <i class="large user lock icon" style="color: black; margin-right: 10px"></i>
             Reset Secretary
           </div>
         </a>
-        <a class="item">
+        <a class="item" id="freeMemory">
           <div class="ui left" style=" font-weight: bold">
             <i class="large recycle icon" style="color: black; margin-right: 10px"></i>
             Free-up Memory
           </div>
         </a>
-        <a class="item">
+        <a class="item" id="logoutButton">
           <div class="ui left" style=" font-weight: bold">
             <i id="logout" class="large sign out icon" style="color: black;  margin-right: 10px;"></i>
             Logout
@@ -425,7 +425,7 @@
 
     {{!-- modal for showing dentist schedule --}}
     <div class="ui small modal" id="schedule-modal">
-      <i class="close icon deny"></i>
+      <i class="close icon deny" id="close-schedule-modal"></i>
       <div class="header"><i class="calendar icon" style="color: white"></i>&nbsp;&nbsp;Schedule</div>
       <div class="scrolling content">
         <div class="ui grid" style="padding: 10px;">
